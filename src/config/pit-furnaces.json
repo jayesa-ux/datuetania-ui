@@ -1,0 +1,10 @@
+[
+    { "code": "hp0", "name": "Horno 0" },
+    { "code": "hp1", "name": "Horno 1" },
+    { "code": "hp2", "name": "Horno 2" },
+    { "code": "hp3", "name": "Horno 3" },
+    { "code": "hp4", "name": "Horno 4" },
+    { "code": "hp5", "name": "Horno 5" },
+    { "code": "hp6", "name": "Horno 6" },
+    { "code": "hp7", "name": "Horno 7" }
+]
