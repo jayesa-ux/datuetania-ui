@@ -10,6 +10,8 @@ import {
   TableRow,
   Paper,
   Box,
+  Typography,
+  Chip,
 } from "@mui/material";
 import { setChartFurnace } from "../../redux/furnaceSlice";
 import moment from "moment";
@@ -54,15 +56,31 @@ const ChartDataTable = () => {
   };
 
   return (
-    <Card
-      variant="outlined"
-      sx={{ maxHeight: 400, overflow: "auto", marginLeft: 2 }}
-    >
-      <CardContent sx={{ padding: 0 }}>
-        <TableContainer component={Paper}>
-          <Table aria-label="data-table">
+    <Card>
+      <CardContent>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 2,
+          }}
+        >
+          <Typography variant="h6">Resultados de la búsqueda</Typography>
+          <Chip
+            label={`${furnaceDataFiltered.length} resultados encontrads`}
+            color="primary"
+            variant="outlined"
+          />
+        </Box>
+
+        <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
+          <Table stickyHeader aria-label="tabla de datos filtrados">
             <TableHead>
               <TableRow>
+                <TableCell>
+                  <strong>Grado de acero</strong>
+                </TableCell>
                 <TableCell>
                   <strong>Fecha Inicio</strong>
                 </TableCell>
@@ -74,6 +92,9 @@ const ChartDataTable = () => {
                 </TableCell>
                 <TableCell>
                   <strong>Consumo original</strong>
+                </TableCell>
+                <TableCell>
+                  <strong>Consumo optimizado</strong>
                 </TableCell>
                 <TableCell>
                   <strong>Mejora Estimada</strong>
@@ -100,6 +121,7 @@ const ChartDataTable = () => {
                   }}
                   onClick={() => handleRowClick(item)}
                 >
+                  <TableCell>-</TableCell>
                   <TableCell>{formatDate(item.Fecha_inicio)}</TableCell>
                   <TableCell>{formatDate(item.Fecha_final)}</TableCell>
                   <TableCell>
@@ -108,6 +130,7 @@ const ChartDataTable = () => {
                   <TableCell>
                     {item.Consumo_original.toFixed(2)} Nm3/h
                   </TableCell>
+                  <TableCell>-</TableCell>
                   <TableCell>
                     <Box sx={{ display: "flex", alignItems: "center" }}>
                       {item.Mejora_estimada_porcentaje.toFixed(2)} %

@@ -67,7 +67,7 @@ function ConsumptionBarChart({ selectedRow }) {
               );
             } else {
               return (
-                `<b>KWH TAP13/Óptimo</b><br/>` +
+                `<b>KWH TAP13</b><br/>` +
                 `Original: ${kwhTap4Original.toFixed(2)} kWh<br/>` +
                 `Optimizado: ${kwhTap4Optimo.toFixed(2)} kWh<br/>` +
                 `<b>Mejora: ${porcentajeMejoraTap.toFixed(2)}%</b>`
@@ -83,7 +83,7 @@ function ConsumptionBarChart({ selectedRow }) {
         },
         xAxis: {
           type: "category",
-          data: ["KWH Total", "KWH TAP13/Óptimo"],
+          data: ["KWH Total", "KWH TAP13"],
           axisLabel: {
             interval: 0,
             rotate: 0,
@@ -175,56 +175,6 @@ function ComparisonDetail({ selectedRow }) {
       return kwhTotal - kwhOriginal + kwhOptimo;
     } catch (error) {
       console.error("Error al calcular KWH total optimizado:", error);
-      return "-";
-    }
-  };
-
-  // Cálculo seguro del porcentaje de mejora
-  const calcularPorcentajeMejora = () => {
-    try {
-      const kwhTotal = Number(selectedRow.kwh_total);
-      const kwhTotalOpt = calcularKwhTotalOptimizado();
-
-      if (
-        kwhTotal === undefined ||
-        kwhTotal === null ||
-        isNaN(kwhTotal) ||
-        kwhTotalOpt === "-" ||
-        kwhTotal === 0
-      ) {
-        return "-";
-      }
-
-      const mejora = ((kwhTotal - kwhTotalOpt) / kwhTotal) * 100;
-      return isNaN(mejora) ? "-" : mejora.toFixed(2);
-    } catch (error) {
-      console.error("Error al calcular porcentaje de mejora:", error);
-      return "-";
-    }
-  };
-
-  // Cálculo del porcentaje de mejora para TAP13/Óptimo
-  const calcularPorcentajeMejoraTap = () => {
-    try {
-      const kwhOriginal = Number(selectedRow.kwh_tap4_original);
-      const kwhOptimo = Number(selectedRow.kwh_tap4_optimo);
-
-      if (
-        kwhOriginal === undefined ||
-        kwhOriginal === null ||
-        kwhOptimo === undefined ||
-        kwhOptimo === null ||
-        isNaN(kwhOriginal) ||
-        isNaN(kwhOptimo) ||
-        kwhOriginal === 0
-      ) {
-        return "-";
-      }
-
-      const mejora = ((kwhOriginal - kwhOptimo) / kwhOriginal) * 100;
-      return isNaN(mejora) ? "-" : mejora.toFixed(2);
-    } catch (error) {
-      console.error("Error al calcular porcentaje de mejora TAP:", error);
       return "-";
     }
   };
@@ -359,116 +309,7 @@ function ComparisonDetail({ selectedRow }) {
         </Grid>
 
         <Grid container spacing={2} sx={{ mt: 2 }}>
-          <Grid item xs={6}>
-            <Paper
-              elevation={2}
-              sx={{ p: 2, bgcolor: "#f0f7ff", height: "100%" }}
-            >
-              <Typography
-                variant="h6"
-                color="primary"
-                gutterBottom
-                align="center"
-              >
-                Mejoras en el consumo (%)
-              </Typography>
-              <Divider sx={{ mb: 2 }} />
-
-              <Grid container spacing={2}>
-                <Grid item xs={6}>
-                  <Box sx={{ textAlign: "center" }}>
-                    <Typography
-                      variant="subtitle2"
-                      color="text.secondary"
-                      gutterBottom
-                    >
-                      Media
-                    </Typography>
-                    <Typography
-                      variant="h6"
-                      fontWeight="bold"
-                      color="primary.dark"
-                    >
-                      {calcularPorcentajeMejora() !== "-"
-                        ? `${calcularPorcentajeMejora()}%`
-                        : "-"}
-                    </Typography>
-                  </Box>
-                </Grid>
-
-                <Grid item xs={6}>
-                  <Box sx={{ textAlign: "center" }}>
-                    <Typography
-                      variant="subtitle2"
-                      color="text.secondary"
-                      gutterBottom
-                    >
-                      Mínimo
-                    </Typography>
-                    <Typography
-                      variant="h6"
-                      fontWeight="bold"
-                      color="primary.dark"
-                    >
-                      {calcularPorcentajeMejora() !== "-"
-                        ? `${(Number(calcularPorcentajeMejora()) * 0.9).toFixed(
-                            2
-                          )}%`
-                        : "-"}
-                    </Typography>
-                  </Box>
-                </Grid>
-
-                <Grid item xs={6}>
-                  <Box sx={{ textAlign: "center" }}>
-                    <Typography
-                      variant="subtitle2"
-                      color="text.secondary"
-                      gutterBottom
-                    >
-                      Máximo
-                    </Typography>
-                    <Typography
-                      variant="h6"
-                      fontWeight="bold"
-                      color="primary.dark"
-                    >
-                      {calcularPorcentajeMejora() !== "-"
-                        ? `${(Number(calcularPorcentajeMejora()) * 1.1).toFixed(
-                            2
-                          )}%`
-                        : "-"}
-                    </Typography>
-                  </Box>
-                </Grid>
-
-                <Grid item xs={6}>
-                  <Box sx={{ textAlign: "center" }}>
-                    <Typography
-                      variant="subtitle2"
-                      color="text.secondary"
-                      gutterBottom
-                    >
-                      Desviación Std
-                    </Typography>
-                    <Typography
-                      variant="h6"
-                      fontWeight="bold"
-                      color="primary.dark"
-                    >
-                      {calcularPorcentajeMejora() !== "-"
-                        ? `${(
-                            Number(calcularPorcentajeMejora()) * 0.05
-                          ).toFixed(2)}`
-                        : "-"}
-                    </Typography>
-                  </Box>
-                </Grid>
-              </Grid>
-            </Paper>
-          </Grid>
-
-          <Grid item xs={6}>
+          <Grid item xs={12}>
             <Paper
               elevation={2}
               sx={{ p: 2, bgcolor: "#fafafa", height: "100%" }}

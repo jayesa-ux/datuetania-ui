@@ -23,6 +23,7 @@ import axios from "axios";
 import * as XLSX from "xlsx";
 import Papa from "papaparse";
 import moment from "moment";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
 const Hornos1 = () => {
   const navigate = useNavigate();
@@ -170,8 +171,35 @@ const Hornos1 = () => {
     }, 1350);
   };
 
+  const handleBack = () => {
+    navigate("/home");
+  };
+
   return (
-    <Grid container spacing={1} sx={{ padding: 4 }}>
+    <Grid container spacing={1} sx={{ padding: 3 }}>
+      <Grid item xs={12}>
+        <Card sx={{ marginX: 2, padding: 2 }}>
+          <Box
+            display="flex"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            <Box display="flex" alignItems="center">
+              <FireplaceIcon fontSize="large" />
+              <Typography variant="h5" component="div" sx={{ marginLeft: 2 }}>
+                Seleccione un horno
+              </Typography>
+            </Box>
+            <Box display="flex" alignItems="center">
+              <ArrowBackIcon
+                fontSize="large"
+                sx={{ cursor: "pointer" }}
+                onClick={handleBack}
+              />
+            </Box>
+          </Box>
+        </Card>
+      </Grid>
       {loading && (
         <Box
           sx={{
@@ -194,7 +222,6 @@ const Hornos1 = () => {
         pitFurnaces.map((item) => (
           <Grid item xs={12} sm={6} md={4} xl={3} key={item.code}>
             <Card
-              variant="outlined"
               onClick={() => handleCardClick(item)}
               sx={{
                 textAlign: "center",

@@ -11,11 +11,6 @@ import {
   Typography,
   Autocomplete,
   TextField as MuiTextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  Box,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
@@ -33,11 +28,6 @@ const FilterComponent = ({ title = "Filtrar Datos", expanded = false }) => {
     ...new Set(furnaceData.map((item) => item.familia).filter(Boolean)),
   ];
 
-  // Obtener valores únicos para el filtro de grupo
-  const grupos = [
-    ...new Set(furnaceData.map((item) => item.grupo).filter(Boolean)),
-  ];
-
   // Obtener valores únicos para los grados de acero
   const gradosAcero = [
     ...new Set(furnaceData.map((item) => item.grado_acero).filter(Boolean)),
@@ -49,10 +39,9 @@ const FilterComponent = ({ title = "Filtrar Datos", expanded = false }) => {
   ].sort();
 
   const [formData, setFormData] = useState({
-    familiaSeleccionada: null,
-    grupoSeleccionado: null,
-    gradoAceroSeleccionado: null,
-    coladaSeleccionada: null,
+    familiasSeleccionadas: [],
+    gradosAceroSeleccionados: [],
+    coladasSeleccionadas: [],
     fechaDesde: "",
     fechaHasta: "",
     horaDesde: "00:00",
@@ -65,61 +54,65 @@ const FilterComponent = ({ title = "Filtrar Datos", expanded = false }) => {
   // Verificar si hay algún filtro seleccionado
   useEffect(() => {
     const hasFilter =
-      formData.familiaSeleccionada ||
-      formData.grupoSeleccionado ||
-      formData.gradoAceroSeleccionado ||
-      formData.coladaSeleccionada ||
+      formData.familiasSeleccionadas.length > 0 ||
+      formData.gradosAceroSeleccionados.length > 0 ||
+      formData.coladasSeleccionadas.length > 0 ||
       formData.fechaDesde ||
       formData.fechaHasta;
 
     setIsFilterSelected(Boolean(hasFilter));
   }, [formData]);
 
-  // Al cargar el componente, no aplicamos filtro por defecto
+  // Al cargar el componente, mostramos TODOS los datos por defecto
   useEffect(() => {
     if (furnaceData.length > 0) {
-      dispatch(setFurnaceDataFiltered([]));
+      // Mostrar todos los datos al inicio
+      dispatch(setFurnaceDataFiltered(furnaceData));
+
+      // Si hay datos, actualizar el gráfico con el primer elemento
+      if (furnaceData.length > 0) {
+        dispatch(setChartFurnace(furnaceData[0]));
+      }
     }
   }, [furnaceData, dispatch]);
 
   const handleReset = () => {
     setFormData({
-      familiaSeleccionada: null,
-      grupoSeleccionado: null,
-      gradoAceroSeleccionado: null,
-      coladaSeleccionada: null,
+      familiasSeleccionadas: [],
+      gradosAceroSeleccionados: [],
+      coladasSeleccionadas: [],
       fechaDesde: "",
       fechaHasta: "",
       horaDesde: "00:00",
       horaHasta: "23:59",
     });
 
-    // Al resetear, no mostramos datos
-    dispatch(setFurnaceDataFiltered([]));
+    // Al resetear, mostramos TODOS los datos
+    dispatch(setFurnaceDataFiltered(furnaceData));
+
+    // Actualizar el gráfico con el primer elemento si hay datos
+    if (furnaceData.length > 0) {
+      dispatch(setChartFurnace(furnaceData[0]));
+    }
   };
 
   const applyFilters = () => {
     // Filtrar datos
     const filteredData = furnaceData.filter((item) => {
-      // Filtrar por familia si está seleccionada
+      // Filtrar por familia si hay seleccionadas
       const familiaMatch =
-        !formData.familiaSeleccionada ||
-        item.familia === formData.familiaSeleccionada;
+        formData.familiasSeleccionadas.length === 0 ||
+        formData.familiasSeleccionadas.includes(item.familia);
 
-      // Filtrar por grupo si está seleccionado
-      const grupoMatch =
-        !formData.grupoSeleccionado ||
-        item.grupo === formData.grupoSeleccionado;
-
-      // Filtrar por grado de acero si está seleccionado
+      // Filtrar por grado de acero si hay seleccionados
       const gradoMatch =
-        !formData.gradoAceroSeleccionado ||
-        item.grado_acero === formData.gradoAceroSeleccionado;
+        formData.gradosAceroSeleccionados.length === 0 ||
+        formData.gradosAceroSeleccionados.includes(item.grado_acero);
 
-      // Filtrar por colada si está seleccionada
+      // Filtrar por colada si hay seleccionadas
       const coladaMatch =
-        !formData.coladaSeleccionada ||
-        item.colada === formData.coladaSeleccionada;
+        formData.coladasSeleccionadas.length === 0 ||
+        formData.coladasSeleccionadas.includes(item.colada);
 
       // Filtrar por fechas y horas
       let fechaDesdeMatch = true;
@@ -173,7 +166,6 @@ const FilterComponent = ({ title = "Filtrar Datos", expanded = false }) => {
 
       return (
         familiaMatch &&
-        grupoMatch &&
         gradoMatch &&
         coladaMatch &&
         fechaDesdeMatch &&
@@ -194,9 +186,6 @@ const FilterComponent = ({ title = "Filtrar Datos", expanded = false }) => {
     applyFilters();
   };
 
-  // Variable para controlar si los campos colada, familia y grupo deben estar deshabilitados
-  const disableOtherFilters = formData.coladaSeleccionada !== null;
-
   return (
     <Accordion defaultExpanded={expanded} disableGutters sx={{ marginX: 2 }}>
       <AccordionSummary
@@ -212,103 +201,65 @@ const FilterComponent = ({ title = "Filtrar Datos", expanded = false }) => {
         <CardContent>
           <form onSubmit={handleSubmit}>
             <Grid container spacing={2}>
-              <Grid item xs={3}>
+              <Grid item xs={4}>
                 <Autocomplete
+                  multiple
                   options={coladas}
-                  value={formData.coladaSeleccionada}
+                  value={formData.coladasSeleccionadas}
                   onChange={(event, newValue) => {
                     setFormData({
                       ...formData,
-                      coladaSeleccionada: newValue,
+                      coladasSeleccionadas: newValue,
                     });
                   }}
                   getOptionLabel={(option) => option?.toString() || ""}
                   renderInput={(params) => (
                     <MuiTextField
                       {...params}
-                      label="Colada"
-                      placeholder="Seleccionar colada"
-                      helperText={
-                        disableOtherFilters
-                          ? "Deshabilita el Grado de Acero para usar este filtro"
-                          : ""
-                      }
+                      label="Coladas"
+                      placeholder="Seleccionar coladas"
                     />
                   )}
                 />
               </Grid>
-              <Grid item xs={3}>
+              <Grid item xs={4}>
                 <Autocomplete
+                  multiple
                   options={gradosAcero}
-                  value={formData.gradoAceroSeleccionado}
+                  value={formData.gradosAceroSeleccionados}
                   onChange={(event, newValue) => {
                     setFormData({
                       ...formData,
-                      gradoAceroSeleccionado: newValue,
-                      coladaSeleccionada: null,
-                      familiaSeleccionada: null,
-                      grupoSeleccionado: null,
+                      gradosAceroSeleccionados: newValue,
                     });
                   }}
-                  disabled={disableOtherFilters}
                   getOptionLabel={(option) => option?.toString() || ""}
                   renderInput={(params) => (
                     <MuiTextField
                       {...params}
-                      label="Grado de Acero"
-                      placeholder="Seleccionar grado"
+                      label="Grados de Acero"
+                      placeholder="Seleccionar grados"
                     />
                   )}
                 />
               </Grid>
-              <Grid item xs={3}>
+              <Grid item xs={4}>
                 <Autocomplete
+                  multiple
                   options={familias}
-                  value={formData.familiaSeleccionada}
+                  value={formData.familiasSeleccionadas}
                   onChange={(event, newValue) => {
                     setFormData({
                       ...formData,
-                      familiaSeleccionada: newValue,
+                      familiasSeleccionadas: newValue,
                     });
                   }}
-                  disabled={disableOtherFilters}
                   getOptionLabel={(option) => option?.toString() || ""}
                   renderInput={(params) => (
                     <MuiTextField
                       {...params}
-                      label="Familia"
-                      placeholder="Seleccionar familia"
-                      helperText={
-                        disableOtherFilters
-                          ? "Deshabilita el Grado de Acero para usar este filtro"
-                          : ""
-                      }
-                    />
-                  )}
-                />
-              </Grid>
-              <Grid item xs={3}>
-                <Autocomplete
-                  options={grupos}
-                  value={formData.grupoSeleccionado}
-                  onChange={(event, newValue) => {
-                    setFormData({
-                      ...formData,
-                      grupoSeleccionado: newValue,
-                    });
-                  }}
-                  disabled={disableOtherFilters}
-                  getOptionLabel={(option) => option?.toString() || ""}
-                  renderInput={(params) => (
-                    <MuiTextField
-                      {...params}
-                      label="Grupo"
-                      placeholder="Seleccionar grupo"
-                      helperText={
-                        disableOtherFilters
-                          ? "Deshabilita el Grado de Acero para usar este filtro"
-                          : ""
-                      }
+                      label="Familias"
+                      placeholder="Seleccionar familias"
                     />
                   )}
                 />
@@ -325,7 +276,6 @@ const FilterComponent = ({ title = "Filtrar Datos", expanded = false }) => {
                     setFormData({ ...formData, fechaDesde: e.target.value })
                   }
                   InputLabelProps={{ shrink: true }}
-                  disabled={disableOtherFilters}
                 />
               </Grid>
               <Grid item xs={3}>
@@ -338,7 +288,6 @@ const FilterComponent = ({ title = "Filtrar Datos", expanded = false }) => {
                     setFormData({ ...formData, horaDesde: e.target.value })
                   }
                   InputLabelProps={{ shrink: true }}
-                  disabled={disableOtherFilters}
                 />
               </Grid>
 
@@ -353,7 +302,6 @@ const FilterComponent = ({ title = "Filtrar Datos", expanded = false }) => {
                     setFormData({ ...formData, fechaHasta: e.target.value })
                   }
                   InputLabelProps={{ shrink: true }}
-                  disabled={disableOtherFilters}
                 />
               </Grid>
               <Grid item xs={3}>
@@ -366,7 +314,6 @@ const FilterComponent = ({ title = "Filtrar Datos", expanded = false }) => {
                     setFormData({ ...formData, horaHasta: e.target.value })
                   }
                   InputLabelProps={{ shrink: true }}
-                  disabled={disableOtherFilters}
                 />
               </Grid>
 

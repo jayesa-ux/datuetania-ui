@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Card, CardContent, Typography, Box } from "@mui/material";
+import { Card, CardContent, Typography } from "@mui/material";
 import { useSelector } from "react-redux";
 import * as echarts from "echarts";
 
@@ -10,6 +10,13 @@ const ConsumptionDistributionChart = () => {
     (state) => state.hornos2.furnaceDataFiltered
   );
   const [selectedIntervals, setSelectedIntervals] = useState([]);
+
+  // Definición consistente de colores para todo el componente
+  const COLORS = {
+    operario: "rgb(92, 94, 251)", // Azul/violeta
+    modelo: "rgb(245, 94, 98)", // Rojo
+    coincidencia: "rgb(190, 38, 100)", // Magenta oscuro
+  };
 
   useEffect(() => {
     if (chartRef.current) {
@@ -80,17 +87,22 @@ const ConsumptionDistributionChart = () => {
       ).length;
     });
 
-    // Procesar datos para barras apiladas normalizadas
+    // Procesar datos para barras apiladas
     const stackedData = intervals.map((interval, index) => {
       const oFreq = operarioFrequency[index];
       const mFreq = modeloFrequency[index];
 
-      // Identificar coincidencias y valores únicos
+      // Calcular coincidencias como el mínimo entre operario y modelo
+      // Este enfoque muestra correctamente cuando hay valores compartidos
       const coincidencia = Math.min(oFreq, mFreq);
+
+      // Solo operario = coladas que están únicamente en operario (restando las coincidencias)
       const soloOperario = oFreq - coincidencia;
+
+      // Solo modelo = coladas que están únicamente en modelo (restando las coincidencias)
       const soloModelo = mFreq - coincidencia;
 
-      // Total real (evitando contar la coincidencia dos veces)
+      // Total real (suma de las tres categorías)
       const total = soloOperario + coincidencia + soloModelo;
 
       // Calcular proporciones
@@ -139,13 +151,20 @@ const ConsumptionDistributionChart = () => {
           const intervalIndex = data.intervals.indexOf(intervalLabel);
           const intervalData = data.stackedData[intervalIndex];
 
+          // Obtener los valores originales totales
+          const totalOperario = data.operarioFrequency[intervalIndex];
+          const totalModelo = data.modeloFrequency[intervalIndex];
+
           let html = `<div><strong>Intervalo: ${intervalLabel} kWh</strong><br/>`;
 
-          // Información detallada de frecuencias
+          // Información detallada de frecuencias con los colores correctos, mostrando totales reales
           html += `<br/><strong>Frecuencias:</strong>`;
-          html += `<br/>Solo Operario: ${intervalData.soloOperario} coladas`;
-          html += `<br/>Solo Modelo: ${intervalData.soloModelo} coladas`;
-          html += `<br/>Coincidencia: ${intervalData.coincidencia} coladas`;
+          html += `<br/><span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${COLORS.operario}"></span>`;
+          html += `Operario: ${totalOperario} coladas`;
+
+          html += `<br/><span style="display:inline-block;margin-right:5px;border-radius:10px;width:10px;height:10px;background-color:${COLORS.modelo}"></span>`;
+          html += `Modelo: ${totalModelo} coladas`;
+
           html += `<br/><strong>Total: ${intervalData.totalFrequency} coladas</strong>`;
           html += "</div>";
           return html;
@@ -153,8 +172,7 @@ const ConsumptionDistributionChart = () => {
       },
       legend: {
         data: ["Solo Operario", "Solo Modelo", "Coincidencia"],
-        left: "center",
-        top: 40,
+        top: 35,
       },
       grid: {
         left: "3%",
@@ -162,12 +180,61 @@ const ConsumptionDistributionChart = () => {
         bottom: "15%",
         containLabel: true,
       },
+      dataZoom: [
+        {
+          type: "slider",
+          show: true,
+          xAxisIndex: [0],
+          start: 0,
+          end: 100,
+          bottom: 20,
+          handleSize: "80%",
+        },
+        {
+          type: "inside",
+          xAxisIndex: [0],
+          start: 0,
+          end: 100,
+          zoomOnMouseWheel: true,
+          moveOnMouseMove: false,
+        },
+        {
+          type: "slider",
+          show: true,
+          yAxisIndex: [0],
+          start: 0,
+          end: 100,
+          right: 20,
+          width: 20,
+          handleSize: "80%",
+        },
+        {
+          type: "inside",
+          yAxisIndex: [0],
+          start: 0,
+          end: 100,
+          zoomOnMouseWheel: "shift",
+          moveOnMouseMove: false,
+        },
+      ],
+      toolbox: {
+        feature: {
+          restore: {
+            title: "Restablecer",
+          },
+          saveAsImage: {
+            title: "Guardar como imagen",
+          },
+        },
+        right: 10,
+        top: 10,
+      },
       xAxis: {
         type: "category",
         data: data.intervals,
         name: "Consumo (kWh)",
         nameLocation: "middle",
-        nameGap: 80,
+        nameGap: 60,
         axisLabel: {
           interval: 0,
           rotate: 45,
@@ -183,15 +250,15 @@ const ConsumptionDistributionChart = () => {
       },
       series: [
         {
-          name: "Solo Operario",
+          name: "Coincidencia",
           type: "bar",
           stack: "total",
           emphasis: {
             focus: "series",
           },
-          data: data.stackedData.map((d) => d.soloOperario),
+          data: data.stackedData.map((d) => d.coincidencia),
           itemStyle: {
-            color: "#FF8C00", // Naranja oscuro
+            color: COLORS.coincidencia,
           },
           label: {
             show: true,
@@ -207,15 +274,15 @@ const ConsumptionDistributionChart = () => {
           },
         },
         {
-          name: "Coincidencia",
+          name: "Solo Operario",
           type: "bar",
           stack: "total",
           emphasis: {
             focus: "series",
           },
-          data: data.stackedData.map((d) => d.coincidencia),
+          data: data.stackedData.map((d) => d.soloOperario),
           itemStyle: {
-            color: "#9370DB", // Púrpura medio
+            color: COLORS.operario,
           },
           label: {
             show: true,
@@ -239,7 +306,7 @@ const ConsumptionDistributionChart = () => {
           },
           data: data.stackedData.map((d) => d.soloModelo),
           itemStyle: {
-            color: "#20B2AA", // Turquesa
+            color: COLORS.modelo,
           },
           label: {
             show: true,
@@ -306,35 +373,7 @@ const ConsumptionDistributionChart = () => {
         {/* Contenedor del gráfico */}
         <div ref={chartRef} style={{ height: "500px", width: "100%" }} />
 
-        {/* Leyenda de colores */}
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "center",
-            gap: 2,
-            mt: 1,
-            mb: 2,
-          }}
-        >
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Box
-              sx={{ width: 16, height: 16, backgroundColor: "#FF8C00", mr: 1 }}
-            />
-            <Typography variant="body2">Solo Operario</Typography>
-          </Box>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Box
-              sx={{ width: 16, height: 16, backgroundColor: "#20B2AA", mr: 1 }}
-            />
-            <Typography variant="body2">Solo Modelo</Typography>
-          </Box>
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Box
-              sx={{ width: 16, height: 16, backgroundColor: "#9370DB", mr: 1 }}
-            />
-            <Typography variant="body2">Coincidencia</Typography>
-          </Box>
-        </Box>
+        {/* La leyenda inferior ha sido eliminada según la especificación */}
       </CardContent>
     </Card>
   );

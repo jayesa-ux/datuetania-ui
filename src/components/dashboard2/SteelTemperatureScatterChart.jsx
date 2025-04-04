@@ -87,10 +87,54 @@ const SteelTemperatureScatterChart = () => {
   const yAxisMin = Math.floor(minTemp - tempRange * 0.1);
   const yAxisMax = Math.ceil(maxTemp + tempRange * 0.1);
 
+  // Configuración de zoom para los ejes X e Y
+  const dataZoomConfig = [
+    {
+      type: "slider",
+      show: true,
+      xAxisIndex: [0],
+      start: 0,
+      end: 100,
+      bottom: 30,
+      handleSize: "80%",
+      height: 20,
+      labelFormatter: (value) => {
+        const index = Math.round(value);
+        return index < etiquetasX.length ? etiquetasX[index] : "";
+      },
+    },
+    {
+      type: "inside",
+      xAxisIndex: [0],
+      start: 0,
+      end: 100,
+      zoomOnMouseWheel: true,
+      moveOnMouseMove: false,
+    },
+    {
+      type: "slider",
+      show: true,
+      yAxisIndex: [0],
+      start: 0,
+      end: 100,
+      right: 20,
+      width: 20,
+      handleSize: "80%",
+    },
+    {
+      type: "inside",
+      yAxisIndex: [0],
+      start: 0,
+      end: 100,
+      zoomOnMouseWheel: "shift",
+      moveOnMouseMove: false,
+    },
+  ];
+
   // Opciones del gráfico
   const option = {
     title: {
-      text: `Comparación de temperaturas (real, predicha y optimizada) - Grado de Acero ${currentGrade}`,
+      text: `Comparación de temperaturas (real, predicha y optimizada)`,
       left: "center",
     },
     tooltip: {
@@ -101,7 +145,7 @@ const SteelTemperatureScatterChart = () => {
 
         // Protección contra índices fuera de rango
         if (index < 0 || index >= filteredData.length) {
-          return `${params.seriesName}: ${params.value[1].toFixed(2)} kWh`;
+          return `${params.seriesName}: ${params.value[1].toFixed(2)} °C`;
         }
 
         const colada = etiquetasX[index];
@@ -130,7 +174,11 @@ const SteelTemperatureScatterChart = () => {
 
         // Mostrar mejora si estamos viendo datos óptimos
         let mejora = "";
-        if (item && params.seriesName === "kWh Óptimo" && item.mejora_kwh) {
+        if (
+          item &&
+          params.seriesName === "Temperatura Optimizada" &&
+          item.mejora_kwh
+        ) {
           mejora = `<br/>Mejora: ${item.mejora_kwh.toFixed(2)} kWh`;
         }
 
@@ -138,7 +186,7 @@ const SteelTemperatureScatterChart = () => {
                 Fecha: ${fechaStr}<br/>
                 ${params.seriesName}: ${params.value[1].toFixed(
           2
-        )} kWh${mejora}`;
+        )} °C${mejora}`;
       },
     },
     legend: {
@@ -147,14 +195,16 @@ const SteelTemperatureScatterChart = () => {
         "Temperatura Predicha",
         "Temperatura Optimizada",
       ],
-      bottom: 10,
+      top: 30,
     },
     grid: {
       left: "3%",
-      right: "4%",
+      right: "5%",
       bottom: "15%",
+      top: "15%",
       containLabel: true,
     },
+    dataZoom: dataZoomConfig,
     xAxis: {
       type: "category",
       name: "Fecha de colada",
@@ -199,6 +249,18 @@ const SteelTemperatureScatterChart = () => {
         itemStyle: { color: "#33CC33" }, // Verde
       },
     ],
+    toolbox: {
+      feature: {
+        restore: {
+          title: "Restablecer",
+        },
+        saveAsImage: {
+          title: "Guardar como imagen",
+        },
+      },
+      right: 10,
+      top: 10,
+    },
   };
 
   return (
@@ -206,7 +268,7 @@ const SteelTemperatureScatterChart = () => {
       <CardContent>
         <ReactECharts
           option={option}
-          style={{ height: "500px", width: "100%" }}
+          style={{ height: "550px", width: "100%" }}
           opts={{ renderer: "canvas" }}
         />
       </CardContent>

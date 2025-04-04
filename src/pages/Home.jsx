@@ -88,15 +88,15 @@ const Home = () => {
       }}
     >
       <HomeCard
-        title="Hornos tipo 1"
-        description="Gráficas de las pendientes"
+        title="Hornos PIT"
+        description=""
         svgSize={250}
         route="/Hornos1"
       />
 
       <HomeCard
-        title="Hornos tipo 2"
-        description="Gráficas de las coladas"
+        title="Horno EAF"
+        description=""
         svgSize={250}
         route="/Hornos2"
       />

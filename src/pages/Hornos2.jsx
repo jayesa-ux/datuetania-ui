@@ -63,8 +63,13 @@ const Hornos2 = () => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
+          position: "absolute",
+          top: 0,
+          left: 0,
           width: "100%",
-          height: "70vh",
+          height: "100%",
+          backgroundColor: "rgba(255, 255, 255, 0.8)",
+          zIndex: 9999,
         }}
       >
         <CircularProgress size={60} thickness={4} />

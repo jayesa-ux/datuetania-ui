@@ -27,11 +27,7 @@ const Dashboard1 = () => {
           >
             <Box display="flex" alignItems="center">
               <FireplaceIcon fontSize="large" />
-              <Typography
-                variant="h5"
-                component="div"
-                sx={{ marginLeft: 2, fontWeight: "bold" }}
-              >
+              <Typography variant="h5" component="div" sx={{ marginLeft: 2 }}>
                 {furnaceSelected.name}
               </Typography>
             </Box>
@@ -48,20 +44,11 @@ const Dashboard1 = () => {
       <Grid item xs={12} sx={{ marginBottom: 2 }}>
         <ChartFilter />
       </Grid>
-      <Grid item xs={12} sx={{ marginBottom: 5 }}>
-        <Box
-          display="flex"
-          alignItems="center"
-          justifyContent="space-between"
-          gap={2}
-        >
-          <Grid item xs={6}>
-            <ChartDataTable />
-          </Grid>
-          <Grid item xs={6}>
-            <ChartFurnace />
-          </Grid>
-        </Box>
+      <Grid item xs={12} sx={{ marginX: 2, marginBottom: 2 }}>
+        <ChartDataTable />
+      </Grid>
+      <Grid item xs={12} sx={{ marginX: 2, marginBottom: 2 }}>
+        <ChartFurnace />
       </Grid>
     </Grid>
   );

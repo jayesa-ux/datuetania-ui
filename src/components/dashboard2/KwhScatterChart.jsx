@@ -84,6 +84,50 @@ const KwhScatterChart = () => {
   const yAxisMin = Math.floor(minKwh - kwhRange * 0.1);
   const yAxisMax = Math.ceil(maxKwh + kwhRange * 0.1);
 
+  // Configuración de zoom
+  const dataZoomConfig = [
+    {
+      type: "slider",
+      show: true,
+      xAxisIndex: [0],
+      start: 0,
+      end: 100,
+      bottom: 30,
+      handleSize: "80%",
+      height: 20,
+      labelFormatter: (value) => {
+        const index = Math.round(value);
+        return index < etiquetasX.length ? etiquetasX[index] : "";
+      },
+    },
+    {
+      type: "inside",
+      xAxisIndex: [0],
+      start: 0,
+      end: 100,
+      zoomOnMouseWheel: true,
+      moveOnMouseMove: false,
+    },
+    {
+      type: "slider",
+      show: true,
+      yAxisIndex: [0],
+      start: 0,
+      end: 100,
+      right: 20,
+      width: 20,
+      handleSize: "80%",
+    },
+    {
+      type: "inside",
+      yAxisIndex: [0],
+      start: 0,
+      end: 100,
+      zoomOnMouseWheel: "shift",
+      moveOnMouseMove: false,
+    },
+  ];
+
   // Función auxiliar para formatear fechas
   const formatearFecha = (fechaColada) => {
     if (!fechaColada) return "No disponible";
@@ -106,7 +150,7 @@ const KwhScatterChart = () => {
 
   const option = {
     title: {
-      text: `Comparación kWh - Grado de Acero ${currentGrade}`,
+      text: `Comparación kWh`,
       left: "center",
     },
     tooltip: {
@@ -152,14 +196,16 @@ const KwhScatterChart = () => {
     },
     legend: {
       data: ["kWh Real", "kWh Óptimo"],
-      bottom: 10,
+      top: 30,
     },
     grid: {
       left: "3%",
-      right: "4%",
+      right: "5%",
       bottom: "15%",
+      top: "15%",
       containLabel: true,
     },
+    dataZoom: dataZoomConfig,
     xAxis: {
       type: "category",
       name: "Fecha de colada",
@@ -199,6 +245,18 @@ const KwhScatterChart = () => {
         itemStyle: { color: "#FF1493" }, // Rosa/Fucsia
       },
     ],
+    toolbox: {
+      feature: {
+        restore: {
+          title: "Restablecer",
+        },
+        saveAsImage: {
+          title: "Guardar como imagen",
+        },
+      },
+      right: 10,
+      top: 10,
+    },
   };
 
   return (
@@ -206,7 +264,7 @@ const KwhScatterChart = () => {
       <CardContent>
         <ReactECharts
           option={option}
-          style={{ height: "500px", width: "100%" }}
+          style={{ height: "550px", width: "100%" }}
           opts={{ renderer: "canvas" }}
         />
       </CardContent>

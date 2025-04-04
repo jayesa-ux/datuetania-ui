@@ -28,7 +28,6 @@ const ChartFilter = () => {
   const options = [
     ...new Set(variables.map((variable) => variable.CodArtic.slice(-5))),
   ];
-  // const options = [...new Set(variables.map((variable) => variable.CodArtic))];
   const selectAllOption = "Seleccionar todos";
 
   const [formData, setFormData] = useState({
@@ -113,7 +112,6 @@ const ChartFilter = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Parseo de fechas y horas
     const startDate =
       formData.startDate && formData.startHour
         ? new Date(`${formData.startDate}T${formData.startHour}`)
@@ -126,12 +124,10 @@ const ChartFilter = () => {
     const mejoraMin = parseFloat(formData.mejoraMin) || 0;
     const mejoraMax = parseFloat(formData.mejoraMax) || Infinity;
 
-    // Filtrado de datos
     const filteredData = filteredFurnaceData.filter((item) => {
       const fechaInicio = new Date(item.Fecha_inicio);
       const fechaFinal = new Date(item.Fecha_final);
 
-      // Filtros de fecha y hora
       const assertDate =
         (!startDate || fechaInicio >= startDate) &&
         (!endDate || fechaFinal <= endDate);
@@ -156,9 +152,7 @@ const ChartFilter = () => {
         aria-controls="chart-filter-content"
         id="chart-filter-header"
       >
-        <Typography variant="h6" fontWeight="bold">
-          Filtrar Pendientes
-        </Typography>
+        <Typography variant="h6">Filtrar Pendientes</Typography>
       </AccordionSummary>
       <AccordionDetails>
         <CardContent>

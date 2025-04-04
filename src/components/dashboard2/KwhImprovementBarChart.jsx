@@ -1,6 +1,14 @@
 /* eslint-disable no-unused-vars */
 import ReactECharts from "echarts-for-react";
-import { Card, CardContent, Typography, Box } from "@mui/material";
+import {
+  Card,
+  CardContent,
+  Typography,
+  Box,
+  Grid,
+  Paper,
+  Divider,
+} from "@mui/material";
 import { useSelector } from "react-redux";
 import moment from "moment";
 
@@ -20,7 +28,7 @@ const KwhImprovementBarChart = () => {
       </Card>
     );
   }
-  console.log("Filtered Data:", filteredData);
+
   const processedData = filteredData.map((item) => {
     if (
       item.kwh_total === undefined ||
@@ -91,6 +99,8 @@ const KwhImprovementBarChart = () => {
       const diff = item.porcentajeMejora - mejoraMedia;
       return acc + diff * diff;
     }, 0) / validData.length;
+
+  const desviacionEstandar = Math.sqrt(varianza);
 
   const etiquetasX = validData.map((item, index) => {
     // Si existe número de colada, lo usamos
@@ -213,15 +223,124 @@ const KwhImprovementBarChart = () => {
   };
 
   return (
-    <Card sx={{ marginX: 2 }}>
-      <CardContent>
-        <ReactECharts
-          option={option}
-          style={{ height: "600px", width: "100%" }}
-          opts={{ renderer: "canvas" }}
-        />
-      </CardContent>
-    </Card>
+    <>
+      <Card sx={{ marginX: 2 }}>
+        <CardContent>
+          <ReactECharts
+            option={option}
+            style={{ height: "500px", width: "100%" }}
+            opts={{ renderer: "canvas" }}
+          />
+        </CardContent>
+      </Card>
+
+      <Card sx={{ margin: 2, marginTop: 1 }}>
+        <CardContent>
+          <Typography variant="h6" gutterBottom align="center">
+            Estadísticas de Mejoras en el Consumo (%)
+          </Typography>
+          <Divider sx={{ mb: 2 }} />
+
+          <Grid container spacing={2}>
+            <Grid item xs={12} sm={6} md={3}>
+              <Paper
+                elevation={2}
+                sx={{ p: 2, bgcolor: "#f0f7ff", height: "100%" }}
+              >
+                <Box sx={{ textAlign: "center" }}>
+                  <Typography
+                    variant="subtitle2"
+                    color="text.secondary"
+                    gutterBottom
+                  >
+                    Media
+                  </Typography>
+                  <Typography
+                    variant="h5"
+                    fontWeight="bold"
+                    color="primary.dark"
+                  >
+                    {mejoraMedia.toFixed(2)}%
+                  </Typography>
+                </Box>
+              </Paper>
+            </Grid>
+
+            <Grid item xs={12} sm={6} md={3}>
+              <Paper
+                elevation={2}
+                sx={{ p: 2, bgcolor: "#f0f7ff", height: "100%" }}
+              >
+                <Box sx={{ textAlign: "center" }}>
+                  <Typography
+                    variant="subtitle2"
+                    color="text.secondary"
+                    gutterBottom
+                  >
+                    Mínimo
+                  </Typography>
+                  <Typography
+                    variant="h5"
+                    fontWeight="bold"
+                    color="primary.dark"
+                  >
+                    {mejoraMínima.toFixed(2)}%
+                  </Typography>
+                </Box>
+              </Paper>
+            </Grid>
+
+            <Grid item xs={12} sm={6} md={3}>
+              <Paper
+                elevation={2}
+                sx={{ p: 2, bgcolor: "#f0f7ff", height: "100%" }}
+              >
+                <Box sx={{ textAlign: "center" }}>
+                  <Typography
+                    variant="subtitle2"
+                    color="text.secondary"
+                    gutterBottom
+                  >
+                    Máximo
+                  </Typography>
+                  <Typography
+                    variant="h5"
+                    fontWeight="bold"
+                    color="primary.dark"
+                  >
+                    {mejoraMáxima.toFixed(2)}%
+                  </Typography>
+                </Box>
+              </Paper>
+            </Grid>
+
+            <Grid item xs={12} sm={6} md={3}>
+              <Paper
+                elevation={2}
+                sx={{ p: 2, bgcolor: "#f0f7ff", height: "100%" }}
+              >
+                <Box sx={{ textAlign: "center" }}>
+                  <Typography
+                    variant="subtitle2"
+                    color="text.secondary"
+                    gutterBottom
+                  >
+                    Desviación Std
+                  </Typography>
+                  <Typography
+                    variant="h5"
+                    fontWeight="bold"
+                    color="primary.dark"
+                  >
+                    {desviacionEstandar.toFixed(2)}
+                  </Typography>
+                </Box>
+              </Paper>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
+    </>
   );
 };
 

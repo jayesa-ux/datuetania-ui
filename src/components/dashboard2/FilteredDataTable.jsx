@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import {
   Table,
@@ -22,6 +22,20 @@ const FilteredDataTable = () => {
     (state) => state.hornos2.furnaceDataFiltered
   );
   const [selectedRow, setSelectedRow] = useState(null);
+
+  // Añadir un listener para el evento de reset de filtros
+  useEffect(() => {
+    const handleResetFilters = () => {
+      setSelectedRow(null);
+    };
+
+    window.addEventListener("resetFilters", handleResetFilters);
+
+    // Limpieza al desmontar el componente
+    return () => {
+      window.removeEventListener("resetFilters", handleResetFilters);
+    };
+  }, []);
 
   const formatDate = (dateString) => {
     // Verificar si la fecha es válida

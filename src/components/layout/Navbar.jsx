@@ -117,19 +117,13 @@ const Navbar = () => {
               <ListItemIcon>
                 <FireplaceIcon />
               </ListItemIcon>
-              <ListItemText
-                primary="Hornos tipo 1"
-                secondary="Gráficas de las pendientes"
-              />
+              <ListItemText primary="Hornos PIT" secondary="" />
             </ListItem>
             <ListItem button onClick={() => handleNavigate("/Hornos2")}>
               <ListItemIcon>
                 <FireplaceIcon />
               </ListItemIcon>
-              <ListItemText
-                primary="Hornos tipo 2"
-                secondary="Gráficas de las coladas"
-              />
+              <ListItemText primary="Hornos EAF" secondary="" />
             </ListItem>
           </List>
         </Box>
