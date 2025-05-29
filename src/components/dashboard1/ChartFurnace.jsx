@@ -1,12 +1,37 @@
+/* eslint-disable no-unused-vars */
 import ReactECharts from "echarts-for-react";
 import { useSelector } from "react-redux";
 import { Grid, Card, CardContent, Box, Typography } from "@mui/material";
 import _ from "lodash";
+import { useState } from "react";
 
 const ChartFurnace = () => {
   const selectedChartFurnace = useSelector(
     (state) => state.furnace.selectedChartFurnace
   );
+
+  // Estado para manejar el modo de zoom
+  const [zoomMode, setZoomMode] = useState("inside"); // 'inside' para zoom con rueda de ratón
+
+  // Si no hay selección, mostrar mensaje
+  if (!selectedChartFurnace) {
+    return (
+      <Card variant="outlined" sx={{ height: 500, overflow: "auto" }}>
+        <CardContent
+          sx={{
+            height: "100%",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Typography variant="h6" color="text.secondary">
+            Seleccione un registro en la tabla para visualizar la gráfica
+          </Typography>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const chartData = selectedChartFurnace;
 
@@ -52,61 +77,151 @@ const ChartFurnace = () => {
   const maxValue = Math.max(...allValues);
   const rangePadding = (maxValue - minValue) * 0.1; // 10% de margen
 
-  // Configuración del gráfico
+  // Calcular la diferencia de tiempo en horas con dos decimales
+  const timeDifferenceHours = (
+    chartData.Tramo_tiempo - chartData.Tramo_tiempo_opt
+  ).toFixed(2);
+
+  // Configuración del gráfico con zoom
   const option = {
     title: {
-      text: "",
-      subtext: "",
+      text: "Temperatura vs. Tiempo",
+      left: "center",
     },
     tooltip: {
       trigger: "axis",
       axisPointer: { type: "cross" },
       formatter: function (params) {
-        let content = ``;
+        let content = `<div style="font-weight: bold; margin-bottom: 5px">Tiempo: ${params[0].value[0].toFixed(
+          2
+        )} h</div>`;
         params.forEach((item) => {
-          content += `<strong>${item.seriesName}: ${item.value[1].toFixed(
-            2
-          )} ºC</strong><br />`;
+          content += `<div style="display: flex; align-items: center; margin: 3px 0;">
+            <span style="display: inline-block; width: 10px; height: 10px; background-color: ${
+              item.color
+            }; margin-right: 5px;"></span>
+            <strong>${item.seriesName}: ${item.value[1].toFixed(2)} ºC</strong>
+          </div>`;
         });
         return content;
       },
     },
     legend: {
-      left: "left",
+      left: "right",
+      orient: "vertical",
+      data: ["Original", "Predicción", "Optimización"],
     },
+    grid: {
+      left: "5%",
+      right: "15%",
+      bottom: "12%",
+      containLabel: true,
+    },
+    toolbox: {
+      feature: {
+        // Herramientas para el usuario
+        dataZoom: {
+          yAxisIndex: "none",
+          title: {
+            zoom: "Zoom Área",
+            back: "Restaurar Zoom",
+          },
+        },
+        restore: {
+          title: "Restaurar",
+        },
+        saveAsImage: {
+          title: "Guardar Imagen",
+          name: "Gráfica_Temperatura_vs_Tiempo",
+        },
+      },
+    },
+    dataZoom: [
+      {
+        type: "inside",
+        start: 0,
+        end: 100,
+        xAxisIndex: 0,
+        filterMode: "filter",
+      },
+      {
+        type: "slider",
+        start: 0,
+        end: 100,
+        xAxisIndex: 0,
+        height: 20,
+        bottom: 0,
+        borderColor: "#ccc",
+        fillerColor: "rgba(80,80,80,0.2)",
+        handleIcon:
+          "M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z",
+        handleSize: "80%",
+        handleStyle: {
+          color: "#fff",
+          shadowBlur: 3,
+          shadowColor: "rgba(0, 0, 0, 0.6)",
+          shadowOffsetX: 2,
+          shadowOffsetY: 2,
+        },
+      },
+    ],
     xAxis: {
       type: "value",
       name: "Tiempo (horas)",
       min: 0,
       max: Math.max(...tramoTiempos) + 0.5,
+      axisLabel: {
+        formatter: "{value} h",
+      },
     },
     yAxis: {
       type: "value",
       name: "Temperatura (ºC)",
       min: (minValue - rangePadding).toFixed(2),
       max: (maxValue + rangePadding).toFixed(2),
+      axisLabel: {
+        formatter: "{value} ºC",
+      },
     },
     series: [
       {
         name: "Original",
         type: "line",
         data: seriesDataOriginal.map((point) => [point.xAxis, point.value]),
-        lineStyle: { color: "#FF5733" },
+        lineStyle: { color: "#FF5733", width: 2 },
         itemStyle: { color: "#FF5733" },
+        symbol: "circle",
+        symbolSize: 8,
+        emphasis: {
+          scale: true,
+          focus: "series",
+        },
       },
       {
         name: "Predicción",
         type: "line",
         data: seriesDataPrediccion.map((point) => [point.xAxis, point.value]),
-        lineStyle: { color: "#3357FF" },
+        lineStyle: { color: "#3357FF", width: 2 },
         itemStyle: { color: "#3357FF" },
+        symbol: "circle",
+        symbolSize: 8,
+        emphasis: {
+          scale: true,
+          focus: "series",
+        },
       },
       {
         name: "Optimización",
         type: "line",
         data: seriesDataOptimizacion.map((point) => [point.xAxis, point.value]),
-        lineStyle: { color: "#33FF57" },
+        lineStyle: { color: "#33FF57", width: 2 },
         itemStyle: { color: "#33FF57" },
+        symbol: "circle",
+        symbolSize: 8,
+        emphasis: {
+          scale: true,
+          focus: "series",
+        },
         markArea: {
           itemStyle: {
             color: "rgba(255, 173, 177, 0.4)",
@@ -127,29 +242,49 @@ const ChartFurnace = () => {
     ],
   };
 
+  const toggleZoomMode = () => {
+    setZoomMode((prevMode) => (prevMode === "inside" ? "slider" : "inside"));
+  };
+
+  // Opciones de la gráfica
+  const onChartClick = (params) => {
+    console.log("Chart clicked:", params);
+  };
+
+  const onEvents = {
+    click: onChartClick,
+  };
+
   return (
-    <Card variant="outlined" sx={{ height: 400, overflow: "auto" }}>
+    <Card variant="outlined" sx={{ height: 500, overflow: "auto" }}>
       <CardContent>
         <Grid container spacing={1}>
           <Grid item xs={12}>
-            <ReactECharts option={option} />
+            <ReactECharts
+              option={option}
+              style={{ height: 400 }} // Aumentado la altura de la gráfica
+              onEvents={onEvents}
+              opts={{ renderer: "canvas" }}
+            />
           </Grid>
           <Grid item xs={12}>
             <Box
               display="flex"
               alignItems="center"
               justifyContent="space-between"
+              sx={{
+                mt: 2,
+                px: 2,
+                py: 1,
+                bgcolor: "background.paper",
+                borderRadius: 1,
+              }}
             >
               <Typography>
-                Diferencia de Tiempo:{" "}
-                {parseFloat(
-                  (chartData.Tramo_tiempo - chartData.Tramo_tiempo_opt).toFixed(
-                    2
-                  )
-                )}
+                <strong>Diferencia de Tiempo:</strong> {timeDifferenceHours} h
               </Typography>
               <Typography>
-                Pendiente:{" "}
+                <strong>Pendiente:</strong>{" "}
                 {parseFloat(
                   (
                     chartData.Tramo_pendiente - chartData.Tramo_pendiente_opt
@@ -157,7 +292,7 @@ const ChartFurnace = () => {
                 )}
               </Typography>
               <Typography>
-                Mejora estimada:{" "}
+                <strong>Mejora estimada:</strong>{" "}
                 {parseFloat(chartData.Mejora_estimada.toFixed(2))}
                 &nbsp; Nm3/h
               </Typography>

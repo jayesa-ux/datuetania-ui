@@ -50,14 +50,62 @@ const Hornos1 = () => {
     };
     setJsonData(combinedData);
 
-    dispatch(setFurnaceData(combinedData.excelData));
+    // Procesamos los datos para añadir el grado de acero
+    const processedData = processFurnaceDataWithSteelGrades(excelData, csvData);
+
+    dispatch(setFurnaceData(processedData));
     dispatch(
-      setFurnaceDataFiltered(
-        combinedData.excelData.filter((item) => item.Status === 1)
-      )
+      setFurnaceDataFiltered(processedData.filter((item) => item.Status === 1))
     );
-    dispatch(setChartFurnace(combinedData.excelData[0]));
+
+    // Ya no establecemos automáticamente la selección inicial
+    // dispatch(setChartFurnace(processedData[0]));
+
     dispatch(setvariables(combinedData.csvData));
+  };
+
+  // Función para procesar los datos y añadir grado de acero
+  const processFurnaceDataWithSteelGrades = (furnaceData, variables) => {
+    if (
+      !furnaceData ||
+      !variables ||
+      furnaceData.length === 0 ||
+      variables.length === 0
+    ) {
+      return furnaceData || [];
+    }
+
+    // Crear un mapa para búsqueda rápida de grados de acero
+    const steelGradesMap = {};
+
+    variables.forEach((variable) => {
+      const steelGrade = variable.CodArtic.slice(-5);
+      const startDate = moment(variable.FecInici);
+      const endDate = moment(variable.FecFinal);
+
+      // Guardar el rango de fechas con su grado de acero
+      for (
+        let d = startDate.clone();
+        d.isSameOrBefore(endDate);
+        d.add(1, "hour")
+      ) {
+        // Usamos una clave basada en el día y hora para búsqueda eficiente
+        const dateKey = d.format("YYYY-MM-DD HH");
+        steelGradesMap[dateKey] = steelGrade;
+      }
+    });
+
+    // Asignar grados de acero a cada registro de horno
+    return furnaceData.map((item) => {
+      const startMoment = moment(item.Fecha_inicio);
+      const dateKey = startMoment.format("YYYY-MM-DD HH");
+      const steelGrade = steelGradesMap[dateKey] || "-";
+
+      return {
+        ...item,
+        steelGrade,
+      };
+    });
   };
 
   const fetchExcelFile = async (pitFurnaceCode) => {

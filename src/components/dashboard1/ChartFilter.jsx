@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Accordion,
@@ -21,10 +21,12 @@ import moment from "moment";
 const ChartFilter = () => {
   const dispatch = useDispatch();
   const furnaceData = useSelector((state) => state.furnace.furnaceData);
-  let filteredFurnaceData = useSelector((state) => state.furnace.furnaceData);
-
   const variables = useSelector((state) => state.variables.variablesData);
 
+  // Pre-procesamos los datos de horno con los grados de acero
+  const [processedFurnaceData, setProcessedFurnaceData] = useState([]);
+
+  // Extraemos los grados de acero únicos
   const options = [
     ...new Set(variables.map((variable) => variable.CodArtic.slice(-5))),
   ];
@@ -37,7 +39,48 @@ const ChartFilter = () => {
     endHour: "",
     selectedOptions: [],
     status: true,
+    mejoraMin: "",
+    mejoraMax: "",
   });
+
+  // Pre-procesar los datos para asignar grados de acero a cada registro de horno
+  useEffect(() => {
+    if (furnaceData.length > 0 && variables.length > 0) {
+      // Crear un mapa para búsqueda rápida
+      const steelGradesMap = {};
+
+      variables.forEach((variable) => {
+        const steelGrade = variable.CodArtic.slice(-5);
+        const startDate = moment(variable.FecInici);
+        const endDate = moment(variable.FecFinal);
+
+        // Guardar el rango de fechas con su grado de acero
+        for (
+          let d = startDate.clone();
+          d.isSameOrBefore(endDate);
+          d.add(1, "hour")
+        ) {
+          // Usamos una clave basada en el día y hora para búsqueda eficiente
+          const dateKey = d.format("YYYY-MM-DD HH");
+          steelGradesMap[dateKey] = steelGrade;
+        }
+      });
+
+      // Asignar grados de acero a cada registro de horno
+      const dataWithSteelGrades = furnaceData.map((item) => {
+        const startMoment = moment(item.Fecha_inicio);
+        const dateKey = startMoment.format("YYYY-MM-DD HH");
+        const steelGrade = steelGradesMap[dateKey] || "-";
+
+        return {
+          ...item,
+          steelGrade,
+        };
+      });
+
+      setProcessedFurnaceData(dataWithSteelGrades);
+    }
+  }, [furnaceData, variables]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -58,6 +101,15 @@ const ChartFilter = () => {
       mejoraMin: "",
       mejoraMax: "",
     });
+
+    // Mostrar todos los datos cuando se resetea el filtro
+    dispatch(
+      setFurnaceDataFiltered(
+        processedFurnaceData.filter((item) =>
+          formData.status ? item.Status === 1 : true
+        )
+      )
+    );
   };
 
   const handleAutocompleteChange = (event, newValue) => {
@@ -72,34 +124,6 @@ const ChartFilter = () => {
         selectedOptions: newValue,
       }));
     }
-
-    if (newValue?.length > 0) {
-      // Filtrar variables basadas en los últimos 5 dígitos
-      const filteredVariables = variables.filter((item) => {
-        const lastFiveDigits = item.CodArtic.slice(-5);
-        // const lastFiveDigits = item.CodArtic;
-        return newValue.includes(lastFiveDigits);
-      });
-
-      filteredFurnaceData = furnaceData.filter((furnace) => {
-        // Convertir las fechas de furnaceData a momentos
-        const fechaInicioFurnace = moment(furnace.Fecha_inicio);
-
-        // Verificar si la fecha de inicio está en algún rango de filteredVariables
-        return filteredVariables.some((variable) => {
-          const fechaInicioVariable = moment(variable.FecInici);
-          const fechaFinalVariable = moment(variable.FecFinal);
-
-          return fechaInicioFurnace.isBetween(
-            fechaInicioVariable,
-            fechaFinalVariable,
-            null,
-            "[]"
-          );
-        });
-      });
-      dispatch(setFurnaceDataFiltered(filteredFurnaceData));
-    }
   };
 
   const handleCheckboxChange = (event) => {
@@ -112,34 +136,48 @@ const ChartFilter = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    const startDate =
-      formData.startDate && formData.startHour
-        ? new Date(`${formData.startDate}T${formData.startHour}`)
-        : null;
-    const endDate =
-      formData.endDate && formData.endHour
-        ? new Date(`${formData.endDate}T${formData.endHour}`)
-        : null;
+    // Construir fechas con hora opcional (por defecto inicio de día o fin de día)
+    let startDate = null;
+    if (formData.startDate) {
+      const timeStr = formData.startHour || "00:00"; // Si no hay hora, usar 00:00
+      startDate = new Date(`${formData.startDate}T${timeStr}`);
+    }
+
+    let endDate = null;
+    if (formData.endDate) {
+      const timeStr = formData.endHour || "23:59"; // Si no hay hora, usar 23:59
+      endDate = new Date(`${formData.endDate}T${timeStr}`);
+    }
 
     const mejoraMin = parseFloat(formData.mejoraMin) || 0;
     const mejoraMax = parseFloat(formData.mejoraMax) || Infinity;
 
-    const filteredData = filteredFurnaceData.filter((item) => {
+    // Aplicar todos los filtros de manera coherente
+    const filteredData = processedFurnaceData.filter((item) => {
       const fechaInicio = new Date(item.Fecha_inicio);
       const fechaFinal = new Date(item.Fecha_final);
 
+      // Filtro de fechas
       const assertDate =
         (!startDate || fechaInicio >= startDate) &&
         (!endDate || fechaFinal <= endDate);
 
+      // Filtro de mejora estimada
       const assertMejora =
         item.Mejora_estimada_porcentaje >= mejoraMin &&
         item.Mejora_estimada_porcentaje <= mejoraMax;
 
+      // Filtro de estado
       const assertStatus = formData.status
         ? item.Status === 1
         : item.Status === 0;
-      return assertDate && assertMejora && assertStatus;
+
+      // Filtro de grado de acero
+      const assertSteelGrade =
+        formData.selectedOptions.length === 0 || // Si no hay selección, mostrar todos
+        formData.selectedOptions.includes(item.steelGrade);
+
+      return assertDate && assertMejora && assertStatus && assertSteelGrade;
     });
 
     dispatch(setFurnaceDataFiltered(filteredData));
@@ -172,7 +210,7 @@ const ChartFilter = () => {
               <Grid item xs={3}>
                 <TextField
                   fullWidth
-                  label="Hora Desde"
+                  label="Hora Desde (Opcional)"
                   type="time"
                   name="startHour"
                   value={formData.startHour}
@@ -194,7 +232,7 @@ const ChartFilter = () => {
               <Grid item xs={3}>
                 <TextField
                   fullWidth
-                  label="Hora Hasta"
+                  label="Hora Hasta (Opcional)"
                   type="time"
                   name="endHour"
                   value={formData.endHour}

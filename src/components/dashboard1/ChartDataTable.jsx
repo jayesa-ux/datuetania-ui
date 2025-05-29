@@ -68,7 +68,7 @@ const ChartDataTable = () => {
         >
           <Typography variant="h6">Resultados de la búsqueda</Typography>
           <Chip
-            label={`${furnaceDataFiltered.length} resultados encontrads`}
+            label={`${furnaceDataFiltered.length} resultados encontrados`}
             color="primary"
             variant="outlined"
           />
@@ -121,7 +121,7 @@ const ChartDataTable = () => {
                   }}
                   onClick={() => handleRowClick(item)}
                 >
-                  <TableCell>-</TableCell>
+                  <TableCell>{item.steelGrade || "-"}</TableCell>
                   <TableCell>{formatDate(item.Fecha_inicio)}</TableCell>
                   <TableCell>{formatDate(item.Fecha_final)}</TableCell>
                   <TableCell>
@@ -130,7 +130,11 @@ const ChartDataTable = () => {
                   <TableCell>
                     {item.Consumo_original.toFixed(2)} Nm3/h
                   </TableCell>
-                  <TableCell>-</TableCell>
+                  <TableCell>
+                    {item.Consumo_optimizado
+                      ? `${item.Consumo_optimizado.toFixed(2)} Nm3/h`
+                      : "-"}
+                  </TableCell>
                   <TableCell>
                     <Box sx={{ display: "flex", alignItems: "center" }}>
                       {item.Mejora_estimada_porcentaje.toFixed(2)} %

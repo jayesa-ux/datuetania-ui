@@ -1,5 +1,6 @@
 import { Grid, Typography, Card } from "@mui/material";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import { useEffect } from "react";
 import ChartDataTable from "../components/dashboard1/ChartDataTable";
 import ChartFurnace from "../components/dashboard1/ChartFurnace";
 import ChartFilter from "../components/dashboard1/ChartFilter";
@@ -7,10 +8,18 @@ import FireplaceIcon from "@mui/icons-material/Fireplace";
 import Box from "@mui/material/Box";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate } from "react-router-dom";
+import { setChartFurnace } from "../redux/furnaceSlice";
 
 const Dashboard1 = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const furnaceSelected = useSelector((state) => state.furnace.selectedFurnace);
+
+  // Efecto para limpiar la selección al cargar el componente
+  useEffect(() => {
+    // Establecer a null para eliminar cualquier selección automática
+    dispatch(setChartFurnace(null));
+  }, [dispatch]);
 
   const handleBack = () => {
     navigate(-1);
@@ -28,7 +37,7 @@ const Dashboard1 = () => {
             <Box display="flex" alignItems="center">
               <FireplaceIcon fontSize="large" />
               <Typography variant="h5" component="div" sx={{ marginLeft: 2 }}>
-                {furnaceSelected.name}
+                {furnaceSelected?.name || "Horno"}
               </Typography>
             </Box>
             <Box display="flex" alignItems="center">
