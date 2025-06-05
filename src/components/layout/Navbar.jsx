@@ -113,13 +113,13 @@ const Navbar = () => {
                 Hornos
               </Typography>
             </ListItem>
-            <ListItem button onClick={() => handleNavigate("/Hornos1")}>
+            <ListItem button onClick={() => handleNavigate("/HornosPIT")}>
               <ListItemIcon>
                 <FireplaceIcon />
               </ListItemIcon>
               <ListItemText primary="Hornos PIT" secondary="" />
             </ListItem>
-            <ListItem button onClick={() => handleNavigate("/Hornos2")}>
+            <ListItem button onClick={() => handleNavigate("/HornoEAF")}>
               <ListItemIcon>
                 <FireplaceIcon />
               </ListItemIcon>

@@ -1,18 +1,18 @@
 import { Grid, Typography, Card } from "@mui/material";
 import { useSelector } from "react-redux";
-import FilterComponent from "../components/dashboard2/FilterComponent";
-import FilteredDataTable from "../components/dashboard2/FilteredDataTable";
-import SteelTemperatureScatterChart from "../components/dashboard2/SteelTemperatureScatterChart";
-import KwhScatterChart from "../components/dashboard2/KwhScatterChart";
-import KwhImprovementBarChart from "../components/dashboard2/KwhImprovementBarChart";
-import ConsumptionDistributionChart from "../components/dashboard2/ConsumptionDistributionChart";
+import FilterComponent from "../components/DashboardEAF/FilterComponent";
+import FilteredDataTable from "../components/DashboardEAF/FilteredDataTable";
+import SteelTemperatureScatterChart from "../components/DashboardEAF/SteelTemperatureScatterChart";
+import KwhScatterChart from "../components/DashboardEAF/KwhScatterChart";
+import KwhImprovementBarChart from "../components/DashboardEAF/KwhImprovementBarChart";
+import ConsumptionDistributionChart from "../components/DashboardEAF/ConsumptionDistributionChart";
 import ScrollToTopButton from "../components/layout/ScrollToTopButton";
 import FireplaceIcon from "@mui/icons-material/Fireplace";
 import Box from "@mui/material/Box";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate } from "react-router-dom";
 
-const Dashboard2 = () => {
+const DashboardEAF = () => {
   const navigate = useNavigate();
   const furnaceSelected = useSelector((state) => state.hornos2.selectedFurnace);
 
@@ -78,4 +78,4 @@ const Dashboard2 = () => {
   );
 };
 
-export default Dashboard2;
+export default DashboardEAF;

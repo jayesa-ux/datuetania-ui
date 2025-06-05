@@ -1,16 +1,16 @@
 import { Grid, Typography, Card } from "@mui/material";
 import { useSelector, useDispatch } from "react-redux";
 import { useEffect } from "react";
-import ChartDataTable from "../components/dashboard1/ChartDataTable";
-import ChartFurnace from "../components/dashboard1/ChartFurnace";
-import ChartFilter from "../components/dashboard1/ChartFilter";
+import ChartDataTable from "../components/DashboardPIT/ChartDataTable";
+import ChartFurnace from "../components/DashboardPIT/ChartFurnace";
+import ChartFilter from "../components/DashboardPIT/ChartFilter";
 import FireplaceIcon from "@mui/icons-material/Fireplace";
 import Box from "@mui/material/Box";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import { useNavigate } from "react-router-dom";
 import { setChartFurnace } from "../redux/furnaceSlice";
 
-const Dashboard1 = () => {
+const DashboardPIT = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const furnaceSelected = useSelector((state) => state.furnace.selectedFurnace);
@@ -63,4 +63,4 @@ const Dashboard1 = () => {
   );
 };
 
-export default Dashboard1;
+export default DashboardPIT;

@@ -20,7 +20,7 @@ const Hornos2 = () => {
       dispatch(setFurnaceData(excelData));
       dispatch(setFurnaceDataFiltered(excelData));
       setTimeout(() => {
-        navigate("/Dashboard2");
+        navigate("/DashboardEAF");
       }, 2000);
     } catch (error) {
       console.error("Error al cargar los datos:", error);

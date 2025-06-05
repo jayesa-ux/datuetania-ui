@@ -1,8 +1,8 @@
 import Navbar from "./components/layout/Navbar";
-import Hornos1 from "./pages/Hornos1";
-import Dashboard1 from "./pages/Dashboard1";
-import Hornos2 from "./pages/Hornos2";
-import Dashboard2 from "./pages/Dashboard2";
+import HornosPIT from "./pages/HornosPIT";
+import DashboardPIT from "./pages/DashboardPIT";
+import HornoEAF from "./pages/HornoEAF";
+import DashboardEAF from "./pages/DashboardEAF";
 import Footer from "./components/layout/Footer";
 import Home from "./pages/Home";
 import { CssBaseline, Box } from "@mui/material";
@@ -48,10 +48,10 @@ function App() {
             <Routes location={location}>
               <Route path="/" element={<Home />} />
               <Route path="/home" element={<Home />} />
-              <Route path="/Hornos1" element={<Hornos1 />} />
-              <Route path="/Dashboard1" element={<Dashboard1 />} />
-              <Route path="/Hornos2" element={<Hornos2 />} />
-              <Route path="/Dashboard2" element={<Dashboard2 />} />
+              <Route path="/HornosPIT" element={<HornosPIT />} />
+              <Route path="/DashboardPIT" element={<DashboardPIT />} />
+              <Route path="/HornoEAF" element={<HornoEAF />} />
+              <Route path="/DashboardEAF" element={<DashboardEAF />} />
             </Routes>
           </CSSTransition>
         </TransitionGroup>

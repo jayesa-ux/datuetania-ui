@@ -37,7 +37,7 @@ const Hornos1 = () => {
   useEffect(() => {
     if (navigateToDetail && selectedFurnace) {
       dispatch(setSelectedFurnace(selectedFurnace));
-      navigate("/Dashboard1");
+      navigate("/DashboardPIT");
     }
   }, [navigateToDetail, selectedFurnace, dispatch, navigate]);
 

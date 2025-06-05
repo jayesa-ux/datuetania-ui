@@ -91,14 +91,14 @@ const Home = () => {
         title="Hornos PIT"
         description=""
         svgSize={250}
-        route="/Hornos1"
+        route="/HornosPIT"
       />
 
       <HomeCard
         title="Horno EAF"
         description=""
         svgSize={250}
-        route="/Hornos2"
+        route="/HornoEAF"
       />
     </div>
   );
