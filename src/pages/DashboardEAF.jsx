@@ -37,7 +37,7 @@ const DashboardEAF = () => {
                   component="div"
                   sx={{ marginLeft: 2, fontWeight: "bold" }}
                 >
-                  {furnaceSelected?.name || "Hornos tipo 2"}
+                  {furnaceSelected?.name || "Horno EAF"}
                 </Typography>
               </Box>
               <Box display="flex" alignItems="center">

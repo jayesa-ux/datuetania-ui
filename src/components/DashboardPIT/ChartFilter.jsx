@@ -19,20 +19,22 @@ import {
   setFurnaceDataFiltered,
   setChartFurnace,
 } from "../../redux/furnaceSlice";
-import moment from "moment";
+import pitSteelGrades from "../../config/pit-steel-grades.json";
 
 const ChartFilter = () => {
   const dispatch = useDispatch();
   const furnaceData = useSelector((state) => state.furnace.furnaceData);
-  const variables = useSelector((state) => state.variables.variablesData);
+  const selectedFurnace = useSelector((state) => state.furnace.selectedFurnace);
 
   // Pre-procesamos los datos de horno con los grados de acero
   const [processedFurnaceData, setProcessedFurnaceData] = useState([]);
 
-  // Extraemos los grados de acero únicos
-  const options = [
-    ...new Set(variables.map((variable) => variable.CodArtic.slice(-5))),
-  ];
+  // Obtenemos los grados de acero específicos para el horno seleccionado
+  const options =
+    selectedFurnace && selectedFurnace.code
+      ? pitSteelGrades[selectedFurnace.code.toLowerCase()] || []
+      : [];
+
   const selectAllOption = "Seleccionar todos";
 
   const [formData, setFormData] = useState({
@@ -46,44 +48,9 @@ const ChartFilter = () => {
     mejoraMax: "",
   });
 
-  // Pre-procesar los datos para asignar grados de acero a cada registro de horno
   useEffect(() => {
-    if (furnaceData.length > 0 && variables.length > 0) {
-      // Crear un mapa para búsqueda rápida
-      const steelGradesMap = {};
-
-      variables.forEach((variable) => {
-        const steelGrade = variable.CodArtic.slice(-5);
-        const startDate = moment(variable.FecInici);
-        const endDate = moment(variable.FecFinal);
-
-        // Guardar el rango de fechas con su grado de acero
-        for (
-          let d = startDate.clone();
-          d.isSameOrBefore(endDate);
-          d.add(1, "hour")
-        ) {
-          // Usamos una clave basada en el día y hora para búsqueda eficiente
-          const dateKey = d.format("YYYY-MM-DD HH");
-          steelGradesMap[dateKey] = steelGrade;
-        }
-      });
-
-      // Asignar grados de acero a cada registro de horno
-      const dataWithSteelGrades = furnaceData.map((item) => {
-        const startMoment = moment(item.Fecha_inicio);
-        const dateKey = startMoment.format("YYYY-MM-DD HH");
-        const steelGrade = steelGradesMap[dateKey] || "-";
-
-        return {
-          ...item,
-          steelGrade,
-        };
-      });
-
-      setProcessedFurnaceData(dataWithSteelGrades);
-    }
-  }, [furnaceData, variables]);
+    setProcessedFurnaceData(furnaceData);
+  }, [furnaceData]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -111,6 +78,8 @@ const ChartFilter = () => {
         processedFurnaceData.filter((item) => item.Status === 1)
       )
     );
+
+    // Limpiar la selección del gráfico
     dispatch(setChartFurnace(null));
   };
 
@@ -154,7 +123,6 @@ const ChartFilter = () => {
     const mejoraMin = parseFloat(formData.mejoraMin) || 0;
     const mejoraMax = parseFloat(formData.mejoraMax) || Infinity;
 
-    // Aplicar todos los filtros de manera coherente
     const filteredData = processedFurnaceData.filter((item) => {
       const fechaInicio = new Date(item.Fecha_inicio);
       const fechaFinal = new Date(item.Fecha_final);
@@ -252,6 +220,7 @@ const ChartFilter = () => {
                       placeholder="Selecciona los grados de acero"
                     />
                   )}
+                  disabled={options.length === 0}
                 />
               </Grid>
               <Grid item xs={3}>

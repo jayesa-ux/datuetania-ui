@@ -58,8 +58,8 @@ const Hornos1 = () => {
       setFurnaceDataFiltered(processedData.filter((item) => item.Status === 1))
     );
 
-    // Ya no establecemos automáticamente la selección inicial
-    // dispatch(setChartFurnace(processedData[0]));
+    // No establecemos automáticamente la selección inicial
+    dispatch(setChartFurnace(null));
 
     dispatch(setvariables(combinedData.csvData));
   };
@@ -144,7 +144,7 @@ const Hornos1 = () => {
         }
         return row;
       });
-      // Aquí puedes enviar el `formattedData` a tu store de Redux o procesarlo
+
       return formattedData;
     } catch (err) {
       console.error("Error al leer el archivo Excel:", err);
