@@ -15,7 +15,10 @@ import {
   TextField as MuiTextField,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { setFurnaceDataFiltered } from "../../redux/furnaceSlice";
+import {
+  setFurnaceDataFiltered,
+  setChartFurnace,
+} from "../../redux/furnaceSlice";
 import moment from "moment";
 
 const ChartFilter = () => {
@@ -102,14 +105,13 @@ const ChartFilter = () => {
       mejoraMax: "",
     });
 
-    // Mostrar todos los datos cuando se resetea el filtro
+    // Mostrar solo las optimizadas cuando se resetea el filtro (status: true por defecto)
     dispatch(
       setFurnaceDataFiltered(
-        processedFurnaceData.filter((item) =>
-          formData.status ? item.Status === 1 : true
-        )
+        processedFurnaceData.filter((item) => item.Status === 1)
       )
     );
+    dispatch(setChartFurnace(null));
   };
 
   const handleAutocompleteChange = (event, newValue) => {
@@ -139,13 +141,13 @@ const ChartFilter = () => {
     // Construir fechas con hora opcional (por defecto inicio de día o fin de día)
     let startDate = null;
     if (formData.startDate) {
-      const timeStr = formData.startHour || "00:00"; // Si no hay hora, usar 00:00
+      const timeStr = formData.startHour || "00:00";
       startDate = new Date(`${formData.startDate}T${timeStr}`);
     }
 
     let endDate = null;
     if (formData.endDate) {
-      const timeStr = formData.endHour || "23:59"; // Si no hay hora, usar 23:59
+      const timeStr = formData.endHour || "23:59";
       endDate = new Date(`${formData.endDate}T${timeStr}`);
     }
 
@@ -167,14 +169,11 @@ const ChartFilter = () => {
         item.Mejora_estimada_porcentaje >= mejoraMin &&
         item.Mejora_estimada_porcentaje <= mejoraMax;
 
-      // Filtro de estado
-      const assertStatus = formData.status
-        ? item.Status === 1
-        : item.Status === 0;
+      const assertStatus = formData.status ? item.Status === 1 : true;
 
       // Filtro de grado de acero
       const assertSteelGrade =
-        formData.selectedOptions.length === 0 || // Si no hay selección, mostrar todos
+        formData.selectedOptions.length === 0 ||
         formData.selectedOptions.includes(item.steelGrade);
 
       return assertDate && assertMejora && assertStatus && assertSteelGrade;

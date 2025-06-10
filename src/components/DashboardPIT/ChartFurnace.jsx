@@ -82,28 +82,38 @@ const ChartFurnace = () => {
     chartData.Tramo_tiempo - chartData.Tramo_tiempo_opt
   ).toFixed(2);
 
-  // Configuración del gráfico con zoom
+  // Configuración del gráfico con tooltip
   const option = {
     title: {
       text: "Temperatura vs. Tiempo",
       left: "center",
     },
     tooltip: {
-      trigger: "axis",
-      axisPointer: { type: "cross" },
+      trigger: "item",
+      axisPointer: {
+        type: "cross",
+        snap: true,
+      },
       formatter: function (params) {
-        let content = `<div style="font-weight: bold; margin-bottom: 5px">Tiempo: ${params[0].value[0].toFixed(
-          2
-        )} h</div>`;
-        params.forEach((item) => {
-          content += `<div style="display: flex; align-items: center; margin: 3px 0;">
-            <span style="display: inline-block; width: 10px; height: 10px; background-color: ${
-              item.color
-            }; margin-right: 5px;"></span>
-            <strong>${item.seriesName}: ${item.value[1].toFixed(2)} ºC</strong>
-          </div>`;
-        });
-        return content;
+        const seriesName = params.seriesName;
+        const time = params.value[0].toFixed(2);
+        const temperature = params.value[1].toFixed(2);
+
+        return `<div style="font-weight: bold; margin-bottom: 5px;">${seriesName}</div>
+                <div style="display: flex; align-items: center; margin: 3px 0;">
+                  <span style="display: inline-block; width: 10px; height: 10px; background-color: ${params.color}; margin-right: 5px;"></span>
+                  <strong>Tiempo: ${time} h</strong>
+                </div>
+                <div style="display: flex; align-items: center; margin: 3px 0;">
+                  <span style="display: inline-block; width: 10px; height: 10px; background-color: ${params.color}; margin-right: 5px;"></span>
+                  <strong>Temperatura: ${temperature} ºC</strong>
+                </div>`;
+      },
+      backgroundColor: "rgba(50, 50, 50, 0.9)",
+      borderColor: "#777",
+      borderWidth: 1,
+      textStyle: {
+        color: "#fff",
       },
     },
     legend: {
@@ -116,25 +126,6 @@ const ChartFurnace = () => {
       right: "15%",
       bottom: "12%",
       containLabel: true,
-    },
-    toolbox: {
-      feature: {
-        // Herramientas para el usuario
-        dataZoom: {
-          yAxisIndex: "none",
-          title: {
-            zoom: "Zoom Área",
-            back: "Restaurar Zoom",
-          },
-        },
-        restore: {
-          title: "Restaurar",
-        },
-        saveAsImage: {
-          title: "Guardar Imagen",
-          name: "Gráfica_Temperatura_vs_Tiempo",
-        },
-      },
     },
     dataZoom: [
       {
@@ -171,7 +162,7 @@ const ChartFurnace = () => {
       min: 0,
       max: Math.max(...tramoTiempos) + 0.5,
       axisLabel: {
-        formatter: "{value} h",
+        formatter: "{value}",
       },
     },
     yAxis: {
@@ -180,7 +171,7 @@ const ChartFurnace = () => {
       min: (minValue - rangePadding).toFixed(2),
       max: (maxValue + rangePadding).toFixed(2),
       axisLabel: {
-        formatter: "{value} ºC",
+        formatter: "{value}",
       },
     },
     series: [
@@ -188,40 +179,64 @@ const ChartFurnace = () => {
         name: "Original",
         type: "line",
         data: seriesDataOriginal.map((point) => [point.xAxis, point.value]),
-        lineStyle: { color: "#FF5733", width: 2 },
+        lineStyle: { color: "#FF5733", width: 3 },
         itemStyle: { color: "#FF5733" },
         symbol: "circle",
-        symbolSize: 8,
+        symbolSize: 10,
         emphasis: {
           scale: true,
           focus: "series",
+          lineStyle: {
+            width: 4,
+          },
+          itemStyle: {
+            borderWidth: 2,
+            borderColor: "#fff",
+          },
         },
+        triggerLineEvent: true,
       },
       {
         name: "Predicción",
         type: "line",
         data: seriesDataPrediccion.map((point) => [point.xAxis, point.value]),
-        lineStyle: { color: "#3357FF", width: 2 },
+        lineStyle: { color: "#3357FF", width: 3 },
         itemStyle: { color: "#3357FF" },
         symbol: "circle",
-        symbolSize: 8,
+        symbolSize: 10,
         emphasis: {
           scale: true,
           focus: "series",
+          lineStyle: {
+            width: 4,
+          },
+          itemStyle: {
+            borderWidth: 2,
+            borderColor: "#fff",
+          },
         },
+        triggerLineEvent: true,
       },
       {
         name: "Optimización",
         type: "line",
         data: seriesDataOptimizacion.map((point) => [point.xAxis, point.value]),
-        lineStyle: { color: "#33FF57", width: 2 },
+        lineStyle: { color: "#33FF57", width: 3 },
         itemStyle: { color: "#33FF57" },
         symbol: "circle",
-        symbolSize: 8,
+        symbolSize: 10,
         emphasis: {
           scale: true,
           focus: "series",
+          lineStyle: {
+            width: 4,
+          },
+          itemStyle: {
+            borderWidth: 2,
+            borderColor: "#fff",
+          },
         },
+        triggerLineEvent: true,
         markArea: {
           itemStyle: {
             color: "rgba(255, 173, 177, 0.4)",
@@ -246,7 +261,6 @@ const ChartFurnace = () => {
     setZoomMode((prevMode) => (prevMode === "inside" ? "slider" : "inside"));
   };
 
-  // Opciones de la gráfica
   const onChartClick = (params) => {
     console.log("Chart clicked:", params);
   };
@@ -256,13 +270,13 @@ const ChartFurnace = () => {
   };
 
   return (
-    <Card variant="outlined" sx={{ height: 500, overflow: "auto" }}>
+    <Card variant="outlined" sx={{ height: 600, overflow: "auto" }}>
       <CardContent>
         <Grid container spacing={1}>
           <Grid item xs={12}>
             <ReactECharts
               option={option}
-              style={{ height: 400 }} // Aumentado la altura de la gráfica
+              style={{ height: 400 }}
               onEvents={onEvents}
               opts={{ renderer: "canvas" }}
             />
