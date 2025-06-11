@@ -11,6 +11,8 @@ import {
   Typography,
   Autocomplete,
   TextField as MuiTextField,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import {
@@ -46,6 +48,7 @@ const FilterComponent = ({ title = "Filtrar Datos", expanded = false }) => {
     fechaHasta: "",
     horaDesde: "00:00",
     horaHasta: "23:59",
+    soloConMejora: false,
   });
 
   // Estado para controlar si hay algo seleccionado
@@ -58,7 +61,8 @@ const FilterComponent = ({ title = "Filtrar Datos", expanded = false }) => {
       formData.gradosAceroSeleccionados.length > 0 ||
       formData.coladasSeleccionadas.length > 0 ||
       formData.fechaDesde ||
-      formData.fechaHasta;
+      formData.fechaHasta ||
+      formData.soloConMejora;
 
     setIsFilterSelected(Boolean(hasFilter));
   }, [formData]);
@@ -66,15 +70,47 @@ const FilterComponent = ({ title = "Filtrar Datos", expanded = false }) => {
   // Al cargar el componente, mostramos TODOS los datos por defecto
   useEffect(() => {
     if (furnaceData.length > 0) {
-      // Mostrar todos los datos al inicio
-      dispatch(setFurnaceDataFiltered(furnaceData));
+      // Procesar datos para calcular mejoras
+      const processedData = processDataWithImprovements(furnaceData);
+      dispatch(setFurnaceDataFiltered(processedData));
 
       // Si hay datos, actualizar el gráfico con el primer elemento
-      if (furnaceData.length > 0) {
-        dispatch(setChartFurnace(furnaceData[0]));
+      if (processedData.length > 0) {
+        dispatch(setChartFurnace(processedData[0]));
       }
     }
   }, [furnaceData, dispatch]);
+
+  // Función para calcular mejoras en todos los casos
+  const processDataWithImprovements = (data) => {
+    return data.map((item) => {
+      // Calcular mejora_kwh si no existe o está vacía
+      let mejoraCalculada = item.mejora_kwh;
+
+      if (
+        mejoraCalculada === undefined ||
+        mejoraCalculada === null ||
+        mejoraCalculada === ""
+      ) {
+        // Intentar calcular la mejora
+        const kwhTotal = Number(item.kwh_total) || 0;
+        const kwhOriginal = Number(item.kwh_tap4_original) || 0;
+        const kwhOptimo = Number(item.kwh_tap4_optimo) || 0;
+
+        if (kwhTotal > 0 && kwhOriginal > 0 && kwhOptimo > 0) {
+          const kwhTotalOptimizado = kwhTotal - kwhOriginal + kwhOptimo;
+          mejoraCalculada = kwhTotal - kwhTotalOptimizado;
+        } else {
+          mejoraCalculada = 0;
+        }
+      }
+
+      return {
+        ...item,
+        mejora_kwh: Number(mejoraCalculada),
+      };
+    });
+  };
 
   const handleReset = () => {
     setFormData({
@@ -85,20 +121,25 @@ const FilterComponent = ({ title = "Filtrar Datos", expanded = false }) => {
       fechaHasta: "",
       horaDesde: "00:00",
       horaHasta: "23:59",
+      soloConMejora: false,
     });
 
-    // Al resetear, mostramos TODOS los datos
-    dispatch(setFurnaceDataFiltered(furnaceData));
+    // Al resetear, mostramos TODOS los datos procesados
+    const processedData = processDataWithImprovements(furnaceData);
+    dispatch(setFurnaceDataFiltered(processedData));
 
     // Actualizar el gráfico con el primer elemento si hay datos
-    if (furnaceData.length > 0) {
-      dispatch(setChartFurnace(furnaceData[0]));
+    if (processedData.length > 0) {
+      dispatch(setChartFurnace(processedData[0]));
     }
   };
 
   const applyFilters = () => {
+    // Procesar datos primero
+    const processedData = processDataWithImprovements(furnaceData);
+
     // Filtrar datos
-    const filteredData = furnaceData.filter((item) => {
+    const filteredData = processedData.filter((item) => {
       // Filtrar por familia si hay seleccionadas
       const familiaMatch =
         formData.familiasSeleccionadas.length === 0 ||
@@ -113,6 +154,9 @@ const FilterComponent = ({ title = "Filtrar Datos", expanded = false }) => {
       const coladaMatch =
         formData.coladasSeleccionadas.length === 0 ||
         formData.coladasSeleccionadas.includes(item.colada);
+
+      // Filtrar por mejora si está activado el checkbox
+      const mejoraMatch = !formData.soloConMejora || item.mejora_kwh > 0;
 
       // Filtrar por fechas y horas
       let fechaDesdeMatch = true;
@@ -168,6 +212,7 @@ const FilterComponent = ({ title = "Filtrar Datos", expanded = false }) => {
         familiaMatch &&
         gradoMatch &&
         coladaMatch &&
+        mejoraMatch &&
         fechaDesdeMatch &&
         fechaHastaMatch
       );
@@ -314,6 +359,25 @@ const FilterComponent = ({ title = "Filtrar Datos", expanded = false }) => {
                     setFormData({ ...formData, horaHasta: e.target.value })
                   }
                   InputLabelProps={{ shrink: true }}
+                />
+              </Grid>
+
+              {/* Checkbox para solo optimizaciones con mejora */}
+              <Grid item xs={3}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={formData.soloConMejora}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          soloConMejora: e.target.checked,
+                        })
+                      }
+                      color="primary"
+                    />
+                  }
+                  label="Solo optimizaciones con mejora"
                 />
               </Grid>
 

@@ -232,7 +232,7 @@ const ConsumptionDistributionChart = () => {
       xAxis: {
         type: "category",
         data: data.intervals,
-        name: "Consumo (kWh)",
+        name: "Consumo Energético (kWh)",
         nameLocation: "middle",
         nameGap: 60,
         axisLabel: {

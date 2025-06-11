@@ -60,14 +60,14 @@ function ConsumptionBarChart({ selectedRow }) {
             const index = params[0].dataIndex;
             if (index === 0) {
               return (
-                `<b>KWH Total</b><br/>` +
+                `<b>Consumo Energético Total</b><br/>` +
                 `Original: ${kwhTotal.toFixed(2)} kWh<br/>` +
                 `Optimizado: ${kwhTotalOptimizado.toFixed(2)} kWh<br/>` +
                 `<b>Mejora: ${porcentajeMejoraTotal.toFixed(2)}%</b>`
               );
             } else {
               return (
-                `<b>KWH TAP13</b><br/>` +
+                `<b>Consumo Energético TAP13</b><br/>` +
                 `Original: ${kwhTap4Original.toFixed(2)} kWh<br/>` +
                 `Optimizado: ${kwhTap4Optimo.toFixed(2)} kWh<br/>` +
                 `<b>Mejora: ${porcentajeMejoraTap.toFixed(2)}%</b>`
@@ -83,7 +83,7 @@ function ConsumptionBarChart({ selectedRow }) {
         },
         xAxis: {
           type: "category",
-          data: ["KWH Total", "KWH TAP13"],
+          data: ["Consumo Energético Total (kWh)", "Consumo Energético TAP13"],
           axisLabel: {
             interval: 0,
             rotate: 0,
@@ -93,7 +93,7 @@ function ConsumptionBarChart({ selectedRow }) {
           type: "value",
           name: "Mejora Relativa (%)",
           axisLabel: {
-            formatter: "{value}%",
+            formatter: "{value}",
           },
         },
         series: [
@@ -207,7 +207,9 @@ function ComparisonDetail({ selectedRow }) {
               <Box
                 sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}
               >
-                <Typography variant="subtitle1">KWH total:</Typography>
+                <Typography variant="subtitle1">
+                  Consumo Energético Total (kWh):
+                </Typography>
                 <Typography variant="body1" fontWeight="bold">
                   {formatNumber(selectedRow.kwh_total)}
                 </Typography>
@@ -216,7 +218,9 @@ function ComparisonDetail({ selectedRow }) {
               <Box
                 sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}
               >
-                <Typography variant="subtitle1">KWH TAP13:</Typography>
+                <Typography variant="subtitle1">
+                  Consumo Energético TAP13 (kWh):
+                </Typography>
                 <Typography variant="body1" fontWeight="bold">
                   {formatNumber(selectedRow.kwh_tap4_original)}
                 </Typography>
@@ -263,7 +267,9 @@ function ComparisonDetail({ selectedRow }) {
               <Box
                 sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}
               >
-                <Typography variant="subtitle1">KWH total:</Typography>
+                <Typography variant="subtitle1">
+                  Consumo Energético Total (kWh):
+                </Typography>
                 <Typography
                   variant="body1"
                   fontWeight="bold"
@@ -276,7 +282,9 @@ function ComparisonDetail({ selectedRow }) {
               <Box
                 sx={{ display: "flex", justifyContent: "space-between", mb: 1 }}
               >
-                <Typography variant="subtitle1">KWH Óptimo:</Typography>
+                <Typography variant="subtitle1">
+                  Consumo energético Óptimo (kWh):
+                </Typography>
                 <Typography
                   variant="body1"
                   fontWeight="bold"
@@ -320,7 +328,7 @@ function ComparisonDetail({ selectedRow }) {
                 gutterBottom
                 align="center"
               >
-                Porcentaje de mejora con optimización
+                Porcentaje de mejora energética con optimización
               </Typography>
               <Divider sx={{ mb: 2 }} />
 

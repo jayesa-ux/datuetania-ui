@@ -139,7 +139,7 @@ const KwhImprovementBarChart = () => {
 
   const option = {
     title: {
-      text: `Porcentaje de Mejora en Consumo de kWh`,
+      text: `Porcentaje de Mejora en Consumo Energético`,
       left: "center",
     },
     tooltip: {
@@ -168,15 +168,15 @@ const KwhImprovementBarChart = () => {
 
         return `Colada: ${item.colada || colada}<br/>
                 Fecha: ${fechaStr}<br/>
-                kWh Original: ${Number(item.kwh_total).toFixed(2)}<br/>
-                kWh Optimizado: ${Number(item.kwhTotalOptimizado).toFixed(
+                Consumo Original: ${Number(item.kwh_total).toFixed(2)} kWh<br/>
+                Consumo Optimizado: ${Number(item.kwhTotalOptimizado).toFixed(
                   2
-                )}<br/>
+                )} kWh<br/>
                 Mejora: ${Number(item.porcentajeMejora).toFixed(2)}%`;
       },
     },
     grid: {
-      left: "3%",
+      left: "6%",
       right: "4%",
       bottom: "15%",
       containLabel: true,
@@ -195,9 +195,9 @@ const KwhImprovementBarChart = () => {
     },
     yAxis: {
       type: "value",
-      name: "Mejora (%) en KWh",
+      name: "Mejora (%) en Consumo Energético",
       axisLabel: {
-        formatter: "{value}%",
+        formatter: "{value}",
       },
     },
     series: [

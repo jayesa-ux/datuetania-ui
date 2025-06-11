@@ -123,7 +123,7 @@ const FilteredDataTable = () => {
                     <strong>Familia</strong>
                   </TableCell>
                   <TableCell align="center">
-                    <strong>kWh Total</strong>
+                    <strong>Consumo Energético Total (kWh)</strong>
                   </TableCell>
                   <TableCell align="center">
                     <strong>Temp. Real (°C)</strong>

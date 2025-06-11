@@ -150,7 +150,7 @@ const KwhScatterChart = () => {
 
   const option = {
     title: {
-      text: `Comparación kWh`,
+      text: `Comparación de Consumo Energético`,
       left: "center",
     },
     tooltip: {
@@ -195,7 +195,7 @@ const KwhScatterChart = () => {
       },
     },
     legend: {
-      data: ["kWh Real", "kWh Óptimo"],
+      data: ["Consumo Real", "Consumo Óptimo"],
       top: 30,
     },
     grid: {
@@ -220,16 +220,16 @@ const KwhScatterChart = () => {
     },
     yAxis: {
       type: "value",
-      name: "Consumo de kWh",
+      name: "Consumo Energético (kWh)",
       min: yAxisMin,
       max: yAxisMax,
       axisLabel: {
-        formatter: "{value} kWh",
+        formatter: "{value}",
       },
     },
     series: [
       {
-        name: "kWh Real",
+        name: "Consumo Real",
         type: "scatter",
         data: kwhOriginalData,
         symbol: "circle",
@@ -237,7 +237,7 @@ const KwhScatterChart = () => {
         itemStyle: { color: "#800080" }, // Morado
       },
       {
-        name: "kWh Óptimo",
+        name: "Consumo Óptimo",
         type: "scatter",
         data: kwhOptimoData,
         symbol: "circle",
