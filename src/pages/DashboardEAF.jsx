@@ -1,11 +1,11 @@
 import { Grid, Typography, Card } from "@mui/material";
 import { useSelector } from "react-redux";
-import FilterComponent from "../components/DashboardEAF/FilterComponent";
-import FilteredDataTable from "../components/DashboardEAF/FilteredDataTable";
-import SteelTemperatureScatterChart from "../components/DashboardEAF/SteelTemperatureScatterChart";
-import KwhScatterChart from "../components/DashboardEAF/KwhScatterChart";
-import KwhImprovementBarChart from "../components/DashboardEAF/KwhImprovementBarChart";
-import ConsumptionDistributionChart from "../components/DashboardEAF/ConsumptionDistributionChart";
+import FilterComponent from "../components/Dashboard-EAF/FilterComponent";
+import FilteredDataTable from "../components/Dashboard-EAF/FilteredDataTable";
+import SteelTemperatureScatterChart from "../components/Dashboard-EAF/SteelTemperatureScatterChart";
+import KwhScatterChart from "../components/Dashboard-EAF/KwhScatterChart";
+import KwhImprovementBarChart from "../components/Dashboard-EAF/KwhImprovementBarChart";
+import ConsumptionDistributionChart from "../components/Dashboard-EAF/ConsumptionDistributionChart";
 import ScrollToTopButton from "../components/layout/ScrollToTopButton";
 import FireplaceIcon from "@mui/icons-material/Fireplace";
 import Box from "@mui/material/Box";
