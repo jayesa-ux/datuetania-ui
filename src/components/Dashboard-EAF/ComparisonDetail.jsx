@@ -49,6 +49,13 @@ function ConsumptionBarChart({ selectedRow }) {
       const porcentajeMejoraTap =
         ((kwhTap4Original - kwhTap4Optimo) / kwhTap4Original) * 100;
 
+      // Función para determinar el color de la barra según el valor
+      const getBarColor = (value) => {
+        if (value > 0) return "#33CC33"; // Verde para mejoras
+        if (value < 0) return "#FF4D4D"; // Rojo para empeoramientos
+        return "#CCCCCC"; // Gris para sin cambio
+      };
+
       // Configuración del gráfico
       const option = {
         tooltip: {
@@ -102,19 +109,21 @@ function ConsumptionBarChart({ selectedRow }) {
             type: "bar",
             data: [
               {
-                value: porcentajeMejoraTotal.toFixed(2),
-                itemStyle: { color: "#33CC33" },
+                value: porcentajeMejoraTotal,
+                itemStyle: { color: getBarColor(porcentajeMejoraTotal) },
               },
               {
-                value: porcentajeMejoraTap.toFixed(2),
-                itemStyle: { color: "#33CC33" },
+                value: porcentajeMejoraTap,
+                itemStyle: { color: getBarColor(porcentajeMejoraTap) },
               },
             ],
             barWidth: "40%",
             label: {
               show: true,
               position: "top",
-              formatter: "{c}%",
+              formatter: function (params) {
+                return Number(params.value).toFixed(2) + "%";
+              },
               fontSize: 12,
               fontWeight: "bold",
             },

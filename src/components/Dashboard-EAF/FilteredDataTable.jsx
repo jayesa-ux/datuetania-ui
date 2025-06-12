@@ -37,6 +37,36 @@ const FilteredDataTable = () => {
     };
   }, []);
 
+  // Función para calcular la mejora TAP13 igual que en ComparisonDetail.jsx
+  const calcularMejoraTap13 = (row) => {
+    try {
+      const kwhOriginal = Number(row.kwh_tap4_original);
+      const kwhOptimo = Number(row.kwh_tap4_optimo);
+
+      // Verificar que los valores son válidos
+      if (
+        isNaN(kwhOriginal) ||
+        isNaN(kwhOptimo) ||
+        kwhOriginal === 0 ||
+        row.kwh_tap4_original === undefined ||
+        row.kwh_tap4_original === null ||
+        row.kwh_tap4_optimo === undefined ||
+        row.kwh_tap4_optimo === null
+      ) {
+        return null;
+      }
+
+      // Aplicar la misma fórmula que ComparisonDetail.jsx
+      const porcentajeMejoraTap =
+        ((kwhOriginal - kwhOptimo) / kwhOriginal) * 100;
+
+      return porcentajeMejoraTap;
+    } catch (error) {
+      console.error("Error al calcular mejora TAP13:", error);
+      return null;
+    }
+  };
+
   const formatDate = (dateString) => {
     // Verificar si la fecha es válida
     if (!dateString) return "-";
@@ -135,62 +165,74 @@ const FilteredDataTable = () => {
                     <strong>Temp. Opt. (°C)</strong>
                   </TableCell>
                   <TableCell align="center">
-                    <strong>Mejora (kWh)</strong>
+                    <strong>Mejora del Consumo Energético TAP13 (%)</strong>
                   </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {filteredData.map((row, index) => (
-                  <TableRow
-                    key={index}
-                    sx={{
-                      "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
-                      backgroundColor:
-                        selectedRow && selectedRow.colada === row.colada
-                          ? "rgba(0, 32, 208, 0.08)"
-                          : "inherit",
-                      cursor: "pointer",
-                    }}
-                    onClick={() => handleRowSelect(row, index)}
-                  >
-                    <TableCell align="center">{row.colada || "-"}</TableCell>
-                    <TableCell align="center">
-                      {formatDate(row.fecha_colada) || "-"}
-                    </TableCell>
-                    <TableCell align="center">
-                      {row.grado_acero || "-"}
-                    </TableCell>
-                    <TableCell align="center">{row.familia || "-"}</TableCell>
-                    <TableCell align="center">
-                      {row.kwh_total ? row.kwh_total.toLocaleString() : "-"}
-                    </TableCell>
-                    <TableCell align="center">
-                      {row.y_original ? row.y_original.toFixed(1) : "-"}
-                    </TableCell>
-                    <TableCell align="center">
-                      {row.y_pred_original
-                        ? row.y_pred_original.toFixed(1)
-                        : "-"}
-                    </TableCell>
-                    <TableCell align="center">
-                      {row.y_pred_optimo ? row.y_pred_optimo.toFixed(1) : "-"}
-                    </TableCell>
-                    <TableCell
-                      align="center"
+                {filteredData.map((row, index) => {
+                  // Calcular la mejora TAP13 para esta fila
+                  const mejoraTap13 = calcularMejoraTap13(row);
+
+                  return (
+                    <TableRow
+                      key={index}
                       sx={{
-                        color:
-                          row.mejora_kwh > 0
-                            ? "green"
-                            : row.mejora_kwh < 0
-                            ? "red"
+                        "&:hover": { backgroundColor: "rgba(0, 0, 0, 0.04)" },
+                        backgroundColor:
+                          selectedRow && selectedRow.colada === row.colada
+                            ? "rgba(0, 32, 208, 0.08)"
                             : "inherit",
-                        fontWeight: row.mejora_kwh ? "bold" : "normal",
+                        cursor: "pointer",
                       }}
+                      onClick={() => handleRowSelect(row, index)}
                     >
-                      {row.mejora_kwh ? row.mejora_kwh.toFixed(1) : "-"}
-                    </TableCell>
-                  </TableRow>
-                ))}
+                      <TableCell align="center">{row.colada || "-"}</TableCell>
+                      <TableCell align="center">
+                        {formatDate(row.fecha_colada) || "-"}
+                      </TableCell>
+                      <TableCell align="center">
+                        {row.grado_acero || "-"}
+                      </TableCell>
+                      <TableCell align="center">{row.familia || "-"}</TableCell>
+                      <TableCell align="center">
+                        {row.kwh_total ? row.kwh_total.toLocaleString() : "-"}
+                      </TableCell>
+                      <TableCell align="center">
+                        {row.y_original ? row.y_original.toFixed(1) : "-"}
+                      </TableCell>
+                      <TableCell align="center">
+                        {row.y_pred_original
+                          ? row.y_pred_original.toFixed(1)
+                          : "-"}
+                      </TableCell>
+                      <TableCell align="center">
+                        {row.y_pred_optimo ? row.y_pred_optimo.toFixed(1) : "-"}
+                      </TableCell>
+                      <TableCell
+                        align="center"
+                        sx={{
+                          color:
+                            mejoraTap13 !== null
+                              ? mejoraTap13 > 0
+                                ? "green"
+                                : mejoraTap13 < 0
+                                ? "red"
+                                : "inherit"
+                              : "inherit",
+                          fontWeight:
+                            mejoraTap13 !== null && mejoraTap13 !== 0
+                              ? "bold"
+                              : "normal",
+                        }}
+                      >
+                        {mejoraTap13 !== null
+                          ? mejoraTap13.toFixed(2) + ""
+                          : "-"}
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           </TableContainer>
