@@ -112,6 +112,12 @@ const FilterComponent = ({ title = "Filtrar Datos", expanded = false }) => {
     });
   };
 
+  // Función para emitir evento personalizado para limpiar selección de tabla
+  const emitClearTableSelection = () => {
+    const event = new CustomEvent("clearTableSelection");
+    window.dispatchEvent(event);
+  };
+
   const handleReset = () => {
     setFormData({
       familiasSeleccionadas: [],
@@ -132,6 +138,9 @@ const FilterComponent = ({ title = "Filtrar Datos", expanded = false }) => {
     if (processedData.length > 0) {
       dispatch(setChartFurnace(processedData[0]));
     }
+
+    // Emitir evento para limpiar la selección de la tabla
+    emitClearTableSelection();
   };
 
   const applyFilters = () => {
@@ -224,6 +233,9 @@ const FilterComponent = ({ title = "Filtrar Datos", expanded = false }) => {
     if (filteredData.length > 0) {
       dispatch(setChartFurnace(filteredData[0]));
     }
+
+    // También limpiar la selección de la tabla al aplicar filtros
+    emitClearTableSelection();
   };
 
   const handleSubmit = (e) => {

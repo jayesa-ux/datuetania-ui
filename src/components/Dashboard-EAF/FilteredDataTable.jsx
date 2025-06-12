@@ -23,16 +23,27 @@ const FilteredDataTable = () => {
   );
   const [selectedRow, setSelectedRow] = useState(null);
 
-  // Añadir un listener para el evento de reset de filtros
+  // Añadir listener para el evento de limpiar selección de tabla
   useEffect(() => {
-    const handleResetFilters = () => {
+    const handleClearTableSelection = () => {
       setSelectedRow(null);
     };
 
+    // Escuchar el evento personalizado de limpieza
+    window.addEventListener("clearTableSelection", handleClearTableSelection);
+
+    // Mantener el listener original para compatibilidad
+    const handleResetFilters = () => {
+      setSelectedRow(null);
+    };
     window.addEventListener("resetFilters", handleResetFilters);
 
     // Limpieza al desmontar el componente
     return () => {
+      window.removeEventListener(
+        "clearTableSelection",
+        handleClearTableSelection
+      );
       window.removeEventListener("resetFilters", handleResetFilters);
     };
   }, []);
